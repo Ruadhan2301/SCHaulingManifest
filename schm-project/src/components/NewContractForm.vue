@@ -27,12 +27,10 @@
       </div>
       <div v-if="addingPayload">
         <div class="btn btn-primary" @click="closePayload">Cancel</div>
-        <div>Commodity</div>
-        <div>Quantity</div>
-        <select v-model="newPayload.commodityID">
-          <option v-for="location in Locations" value="1">{{ location }}</option>
-        </select>
-        <div>Destination</div>
+        <SearchableDropdown :options="commodities" :searchQuery="newPayload.commodityID" />
+        <FieldInput v-model="newPayload.quantity" />
+        <SearchableDropdown :options="locations" :searchQuery="newPayload.originID" />
+        <SearchableDropdown :options="locations" :searchQuery="newPayload.destinationID" />
         <div class="btn btn-secondary" @click="closePayloadAndAdd">Add</div>
       </div>
       <div v-for="payload in newContract.payloads" class="new-contract-form-payloadblock">
@@ -60,10 +58,15 @@ import type { Contract } from '@/models/contract'
 import { useContractStore } from '@/stores/use-contract-store'
 import { onMounted, ref } from 'vue'
 import { Locations } from '@/enums/locations'
+import { Commodities } from '@/enums/commodities'
+import SearchableDropdown from './SearchableDropdown.vue'
 
 onMounted(() => {
   console.log('NewContractForm mounted')
 })
+
+const locations = Object.values(Locations) as string[];
+const commodities = Object.values(Commodities) as string[];
 
 const showForm = ref(false)
 const addingPayload = ref(false)
@@ -78,8 +81,8 @@ const newContract = ref<Contract>({
 const newPayload = ref({
   commodityID: '',
   quantity: 0,
-  originID: 0,
-  destinationID: 0,
+  originID: '',
+  destinationID: '',
   status: PayloadStatus.Ready,
 })
 
@@ -114,8 +117,8 @@ const addPayload = () => {
   newPayload.value = {
     commodityID: '',
     quantity: 0,
-    originID: 0,
-    destinationID: 0,
+    originID: '',
+    destinationID: '',
     status: PayloadStatus.Ready,
   }
   console.log('Add Payload')
