@@ -1,7 +1,10 @@
+import type { PayloadStatus } from '@/enums/payload-status'
+
 export interface Payload {
   id: number
-  commodityID: number
-  originID: number
-  destinationID: number
+  commodityID: string
+  originID: string | number
+  destinationID: string | number
   quantity: number
+  status?: PayloadStatus
 }
