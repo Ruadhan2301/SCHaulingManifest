@@ -5,7 +5,8 @@ import { Commodities } from '../enums/commodities'
 import { PayloadStatus } from '@/enums/payload-status'
 
 export const useContractStore = defineStore('contracts', () => {
-  const contracts = ref<Contract[]>([
+  const contracts = ref<Contract[]>([])
+  /*const contracts = ref<Contract[]>([
     {
       id: 1,
       name: 'Contract 1',
@@ -66,7 +67,14 @@ export const useContractStore = defineStore('contracts', () => {
         },
       ],
     },
-  ])
+  ])*/
 
-  return { contracts }
+  const addContract = (contract: Contract) => {
+    contracts.value.push(contract)
+  }
+  const deleteContract = (contractID: number) => {
+    contracts.value = contracts.value.filter((contract) => contract.id !== contractID)
+  }
+
+  return { contracts, addContract, deleteContract }
 })

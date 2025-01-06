@@ -34,6 +34,17 @@ onMounted(() => {
   border-bottom: 1px solid grey;
   padding: 0.25rem 0.5rem;
 }
+.circle-count {
+  border-radius: 100%;
+  background-color: black;
+  color: white;
+  padding: 0.25rem;
+  width: 3rem;
+  height: 3rem;
+  text-align: center;
+  font-weight: bold;
+  padding-top: 0.65rem;
+}
 </style>
 
 <template>
@@ -41,15 +52,20 @@ onMounted(() => {
     <!--<NewContractForm />-->
     <div id="main-contract-list">
       <div v-for="contract in contracts" id="destination-instance" class="contract-block">
-        <div id="destination-instance-header" class="contract-block-header">
+        <div id="destination-instance-header" class="contract-block-header d-flex">
           <h2>{{ contract.name }}</h2>
+          <h2>{{ contract.price }}<span class="bold" style="font-size: medium"> auec</span></h2>
         </div>
         <div v-for="payload in contract.payloads" class="contract-block-body">
-          <div id="destination-instance-payload" class="d-flex" style="display: flex;">
+          <div id="destination-instance-payload" class="d-flex" style="display: flex">
             <div>
-              <p>x{{ payload.quantity }} {{ payload.commodityID }}</p>
+              <div class="d-flex">
+                <div class="circle-count">x{{ payload.quantity }}</div>
+                <p>{{ payload.commodityID }}</p>
+              </div>
               <p>Route {{ payload.originID }} -> {{ payload.destinationID }}</p>
             </div>
+            Status: {{ payload.status }}
             <div class="ml-auto">
               <select v-model="payload.status">
                 <option v-for="status in PayloadStatus" :value="status">{{ status }}</option>
