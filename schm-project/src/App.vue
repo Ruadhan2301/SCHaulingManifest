@@ -6,8 +6,8 @@ import NewContractForm from './components/NewContractForm.vue'
 
 <template>
   <Tabs />
-  <NewContractForm />
   <RouterView />
+  <NewContractForm style="z-index: 10000" />
 </template>
 
 <style scoped></style>

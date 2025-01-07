@@ -5,10 +5,9 @@ import { onMounted, ref } from 'vue'
 import { useContractStore } from '../stores/use-contract-store'
 import { PayloadStatus } from '../enums/payload-status'
 
-const contracts = ref()
+const { contracts } = useContractStore();
 
 onMounted(() => {
-  contracts.value = useContractStore().contracts
 })
 </script>
 
@@ -16,8 +15,11 @@ onMounted(() => {
 .contract-block {
   display: flex;
   flex-direction: column;
-  border: 1px solid black;
-  margin: 10px;
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 0.5rem 0.25rem grey;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 .contract-block-header {
   display: flex;
@@ -28,7 +30,6 @@ onMounted(() => {
   padding: 0.25rem;
 }
 .contract-block-body {
-  display: flex;
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid grey;
@@ -36,7 +37,7 @@ onMounted(() => {
 }
 .circle-count {
   border-radius: 100%;
-  background-color: black;
+  background-color: rgb(0, 135, 189);
   color: white;
   padding: 0.25rem;
   width: 3rem;
@@ -57,21 +58,33 @@ onMounted(() => {
           <h2>{{ contract.price }}<span class="bold" style="font-size: medium"> auec</span></h2>
         </div>
         <div v-for="payload in contract.payloads" class="contract-block-body">
-          <div id="destination-instance-payload" class="d-flex" style="display: flex">
-            <div>
-              <div class="d-flex">
+          <div id="destination-instance-payload" class="d-flex">
+            <div class="w-100">
+              <div class="d-flex" style="position: relative">
                 <div class="circle-count">x{{ payload.quantity }}</div>
-                <p>{{ payload.commodityID }}</p>
+                <div style="position: relative; width: 100%">
+                  <div style="position: relative">
+                    <div
+                      style="
+                        left: 0.25rem;
+                        top: -50%;
+                        transform: translateY(50%);
+                        position: absolute;
+                      "
+                    >
+                      {{ payload.commodityID }}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <p>Route {{ payload.originID }} -> {{ payload.destinationID }}</p>
             </div>
-            Status: {{ payload.status }}
-            <div class="ml-auto">
-              <select v-model="payload.status">
-                <option v-for="status in PayloadStatus" :value="status">{{ status }}</option>
-              </select>
-            </div>
+            <div>
+            <div style="width: auto; text-wrap: nowrap">Status: {{ payload.status }}</div>
+            <Button class="btn btn-primary" v-if="payload.status === PayloadStatus.Ready" @click="payload.status = PayloadStatus.Collected">Collect</Button>
+            <Button class="btn btn-primary" v-if="payload.status === PayloadStatus.Collected" @click="payload.status = PayloadStatus.Delivered">Delivered</Button>
           </div>
+          </div>
+          <p>{{ payload.originID }} -> {{ payload.destinationID }}</p>
         </div>
       </div>
     </div>

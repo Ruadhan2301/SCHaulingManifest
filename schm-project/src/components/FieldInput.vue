@@ -1,40 +1,53 @@
 <template>
-  <input 
-  type="text" 
-  v-model="val" 
-  placeholder="" 
-  @input="onInput"/>
+  <input
+    type="text"
+    v-model="val"
+    :placeholder="props.placeholder"
+    class="dropdown-input w-100"
+    @input="onInput"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { defineProps } from 'vue';
+import { ref, watch } from 'vue'
+import { defineProps } from 'vue'
 
 interface IProps {
-  modelValue?: any;
-  disabled?: boolean;
+  modelValue?: any
+  disabled?: boolean
+  placeholder?: string
 }
 
-const emit = defineEmits([
-  'update:modelValue'
-]);
+const emit = defineEmits(['update:modelValue'])
 
 const props = withDefaults(defineProps<IProps>(), {
-  disabled: false
-});
-
-const val = ref('');
-
-watch(() => props.modelValue, newValue => (val.value = newValue),
-{
-  immediate: true
+  disabled: false,
 })
+
+const val = ref('')
+
+watch(
+  () => props.modelValue,
+  (newValue) => (val.value = newValue),
+  {
+    immediate: true,
+  },
+)
 const onInput = () => {
-  emit('update:modelValue', val.value);
-};
+  emit('update:modelValue', val.value)
+}
 </script>
 
 <style scoped>
+.dropdown-input {
+  padding: 8px;
+  border: 1px solid #ccc;
+}
+.autocomplete {
+  border: 1px solid #ccc;
+  max-height: 150px;
+  overflow-y: auto;
+}
 ul {
   list-style-type: none;
   padding: 0;
@@ -53,4 +66,3 @@ li:hover {
   background-color: #f0f0f0;
 }
 </style>
-

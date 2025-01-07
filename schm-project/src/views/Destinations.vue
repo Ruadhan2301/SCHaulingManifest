@@ -1,14 +1,25 @@
 <script setup lang="ts">
 import NewContractForm from '../components/NewContractForm.vue'
 import type { Contract } from '../models/contract'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useContractStore } from '../stores/use-contract-store'
 import { PayloadStatus } from '../enums/payload-status'
 
-const contracts = ref()
+const { contracts } = useContractStore();
 
-onMounted(() => {
-  contracts.value = useContractStore().contracts
+const destinations = computed(() => {
+  // create an array of payloads from all contracts, using DestinationID to categorise them
+  const dest = contracts.reduce((acc:any, contract:Contract) => {
+    contract.payloads.forEach((payload) => {
+      if (!acc[payload.destinationID]) {
+        acc[payload.destinationID] = []
+      }
+      acc[payload.destinationID].push(payload)
+    })
+    return acc
+  }, {});
+  console.log(dest)
+  return dest
 })
 </script>
 
@@ -40,6 +51,10 @@ onMounted(() => {
   <main>
     <!--<NewContractForm />-->
 
-    <div id="main-destination-list"></div>
+    <div id="main-destination-list">
+      <div v-for="destination in destinations">
+          test {{ destination }}
+      </div>
+    </div>
   </main>
 </template>

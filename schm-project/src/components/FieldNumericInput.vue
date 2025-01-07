@@ -3,15 +3,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from 'vue'
 
-import { defineProps } from 'vue';
+import { defineProps } from 'vue'
 
 const props = defineProps<{
-  value: number;
-}>();
-const val = ref<number>(props.value);
-
+  value: number
+}>()
+const val = ref<number>(props.value)
 </script>
 
 <style scoped>
@@ -33,4 +32,3 @@ li:hover {
   background-color: #f0f0f0;
 }
 </style>
-

@@ -1,10 +1,10 @@
 import type { PayloadStatus } from '@/enums/payload-status'
 
 export interface Payload {
-  id: number
+  id?: number
   commodityID: string
   originID: string
   destinationID: string
-  quantity: number
+  quantity?: number
   status?: PayloadStatus
 }
