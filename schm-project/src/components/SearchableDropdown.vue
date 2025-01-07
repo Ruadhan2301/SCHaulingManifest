@@ -1,35 +1,105 @@
 <template>
-  <input type="text" v-model="props.searchQuery" placeholder="Search..." @input="filterOptions" />
-  <ul v-if="filteredOptions.length">
-    <li v-for="option in filteredOptions" :key="option" @click="selectOption(option)">
-      {{ option }}
+  <input 
+  ref="inputField" 
+  type="text" 
+  v-model="inputSearch" 
+  placeholder="Search..." 
+  @focus="showDropdown(); selectFieldInput();"
+
+  :disabled="props.disabled"
+  
+  />
+  <ul v-if="filteredOptions && filteredOptions.length && isFocused" @mouseleave="hideDropdown" @mouseenter="showDropdown">
+    <li v-for="(option, i) in filteredOptions" :key="i" @click="setSelection(option)">
+      {{ option.label }}
     </li>
   </ul>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import { defineProps } from 'vue';
-const props = defineProps<{
-  options: string[];
-  searchQuery: string;
-}>();
+import type { IOptions } from './Interfaces/Fields';
 
-const options = ref<string[]>(props.options);
+const inputSearch = ref('');
+const inputField = ref();
+const selectedOption = ref<IOptions>();
 
-const searchQuery = ref<string>(props.searchQuery);
-const filteredOptions = ref<string[]>(options.value);
+const val = ref('');
+const selectFieldInput = () => {
+  inputField.value.select();
+};
+const isFocused = ref(false);
 
-const filterOptions = () => {
-  filteredOptions.value = options.value.filter(option =>
-    option.toLowerCase().includes(props.searchQuery.toLowerCase())
-  );
+interface IProps {
+  modelValue?: string;
+  disabled?: boolean;
+  options?: IOptions[];
+}
+
+const props = withDefaults(defineProps<IProps>(), {
+  disabled: false
+});
+
+
+const emit = defineEmits([
+  'update:modelValue'
+]);
+
+const hideDropdown = () => {
+  isFocused.value = false;
 };
 
-const selectOption = (option: string) => {
-  searchQuery.value = option;
-  filteredOptions.value = [];
+const showDropdown = () => {
+  isFocused.value = true;
+};
+
+const isEmpty = (a: string) => {
+  return a === null || a === undefined || a.trim() === '';
+};
+
+const filteredOptions = computed(() => {
+  if (isEmpty(inputSearch.value)) {
+    return props.options;
+  }
+  if (inputSearch.value && inputSearch.value?.trim().length > 0) {
+    return props.options?.filter(entry => entry.label.toLowerCase().includes(inputSearch.value.toLowerCase()) || entry.value.toString() == inputSearch.value);    
+  }
+});
+
+const setSelection = (option: IOptions) => {
+  val.value = option.value;
+  inputSearch.value = option.label;
+  selectedOption.value = option;
+  hideDropdown();
+  onInput();
+};
+const selectFirstOption = () => {
+  if (filteredOptions.value && filteredOptions.value.length && !isEmpty(inputSearch.value)) {
+    selectedOption.value = filteredOptions.value[0];
+    val.value = selectedOption.value.value;
+    inputSearch.value = selectedOption.value.label;
+  }else if (!filteredOptions.value?.length && !isEmpty(inputSearch.value)) {
+    if (inputSearch.value){
+      const parsedValue = parseInt(inputSearch.value);
+      if (!isNaN(parsedValue)){
+        const selectedOption = props.options?.find(option => option.value === parsedValue);
+        if (selectedOption){
+          val.value = selectedOption.value;
+          inputSearch.value = selectedOption.label;
+        }
+      }
+    }
+  }
+};
+
+watch(() => props.modelValue, newValue => (val.value = newValue ?? ''),
+{
+  immediate: true
+})
+const onInput = () => {
+  emit('update:modelValue', val.value);
 };
 </script>
 

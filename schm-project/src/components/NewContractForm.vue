@@ -27,10 +27,10 @@
       </div>
       <div v-if="addingPayload">
         <div class="btn btn-primary" @click="closePayload">Cancel</div>
-        <SearchableDropdown :options="commodities" :searchQuery="newPayload.commodityID" />
+        <SearchableDropdown :options="selectableCommodities" :searchQuery="newPayload.commodityID" />
         <FieldInput v-model="newPayload.quantity" />
-        <SearchableDropdown :options="locations" :searchQuery="newPayload.originID" />
-        <SearchableDropdown :options="locations" :searchQuery="newPayload.destinationID" />
+        <SearchableDropdown :options="selectableLocations" :searchQuery="newPayload.originID" />
+        <SearchableDropdown :options="selectableLocations" :searchQuery="newPayload.destinationID" />
         <div class="btn btn-secondary" @click="closePayloadAndAdd">Add</div>
       </div>
       <div v-for="payload in newContract.payloads" class="new-contract-form-payloadblock">
@@ -56,7 +56,7 @@
 import { PayloadStatus } from '@/enums/payload-status'
 import type { Contract } from '@/models/contract'
 import { useContractStore } from '@/stores/use-contract-store'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { Locations } from '@/enums/locations'
 import { Commodities } from '@/enums/commodities'
 import SearchableDropdown from './SearchableDropdown.vue'
@@ -67,6 +67,18 @@ onMounted(() => {
 
 const locations = Object.values(Locations) as string[];
 const commodities = Object.values(Commodities) as string[];
+
+const selectableLocations = computed(() => {
+  return locations.map((location) => {
+    return { value: location, label: location }
+  })
+})
+
+const selectableCommodities = computed(() => {
+  return commodities.map((commodity) => {
+    return { value: commodity, label: commodity }
+  })
+})
 
 const showForm = ref(false)
 const addingPayload = ref(false)

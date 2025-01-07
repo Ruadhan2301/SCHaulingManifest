@@ -1,16 +1,37 @@
 <template>
-  <input type="text" v-model="props.searchQuery" placeholder="" />
+  <input 
+  type="text" 
+  v-model="val" 
+  placeholder="" 
+  @input="onInput"/>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-
+import { ref, watch } from 'vue';
 import { defineProps } from 'vue';
-const props = defineProps<{
-  options: string[];
-  searchQuery: string;
-}>();
 
+interface IProps {
+  modelValue?: any;
+  disabled?: boolean;
+}
+
+const emit = defineEmits([
+  'update:modelValue'
+]);
+
+const props = withDefaults(defineProps<IProps>(), {
+  disabled: false
+});
+
+const val = ref('');
+
+watch(() => props.modelValue, newValue => (val.value = newValue),
+{
+  immediate: true
+})
+const onInput = () => {
+  emit('update:modelValue', val.value);
+};
 </script>
 
 <style scoped>
