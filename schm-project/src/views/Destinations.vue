@@ -21,6 +21,20 @@ const destinations = computed(() => {
   console.log(dest)
   return dest
 })
+const origins = computed(() => {
+  // create an array of payloads from all contracts, using DestinationID to categorise them
+  const dest = contracts.reduce((acc:any, contract:Contract) => {
+    contract.payloads.forEach((payload) => {
+      if (!acc[payload.originID]) {
+        acc[payload.originID] = []
+      }
+      acc[payload.originID].push(payload)
+    })
+    return acc
+  }, {});
+  console.log(dest)
+  return dest
+})
 </script>
 
 <style scoped>
@@ -50,7 +64,13 @@ const destinations = computed(() => {
 <template>
   <main>
     <!--<NewContractForm />-->
-
+    Origins
+    <div id="main-destination-list">
+      <div v-for="destination in origins">
+          test {{ destination }}
+      </div>
+    </div>
+    Destinations
     <div id="main-destination-list">
       <div v-for="destination in destinations">
           test {{ destination }}
