@@ -1,5 +1,6 @@
 <template>
   <div class="w-100">
+    <label v-show="props.label" class="bold" style="margin-left: 0.25rem">{{ props.label }}</label>
     <input
       ref="inputField"
       type="text"
@@ -9,7 +10,7 @@
       @keydown.enter="selectFirstOption()"
       @keydown.tab="selectFirstOption()"
       :disabled="props.disabled"
-      class="dropdown-input w-100"
+      class="dropdown-input w-100 mt-1"
     />
     <div
       v-if="isFocused"
@@ -58,6 +59,7 @@ interface IProps {
   placeholder?: string
   disabled?: boolean
   options?: IOptions[]
+  label?: string
 }
 
 const props = withDefaults(defineProps<IProps>(), {
@@ -66,9 +68,9 @@ const props = withDefaults(defineProps<IProps>(), {
 
 const emit = defineEmits(['update:modelValue'])
 
-const onFocus = () => {  
-  showDropdown();
-  selectFieldInput();
+const onFocus = () => {
+  showDropdown()
+  selectFieldInput()
 }
 
 const hideDropdown = () => {
@@ -120,6 +122,9 @@ const selectFirstOption = () => {
       }
     }
   }
+
+  hideDropdown()
+  onInput()
 }
 
 watch(

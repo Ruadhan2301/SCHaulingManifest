@@ -14,15 +14,23 @@
         :class="[route.path == '/destinations' ? 'selected' : '']"
         @click="navToRoute('/destinations')"
       >
-        Destinations
+        Locations
       </div>
+
       <div
+        class="tab-btn"
+        :class="[route.path == '/history' ? 'selected' : '']"
+        @click="navToRoute('/history')"
+      >
+        History
+      </div>
+      <!--<div
         class="tab-btn"
         :class="[route.path == '/cargohold' ? 'selected' : '']"
         @click="navToRoute('/cargohold')"
       >
         Cargo
-      </div>
+      </div>-->
     </div>
   </div>
 </template>
@@ -40,18 +48,18 @@ function navToRoute(route: string) {
 
 <style scoped>
 .tabs {
-  border-bottom: 3px solid rgb(0, 135, 189);
+  border-bottom: 3px solid #0087bd;
 }
 .tab-btn {
   padding: 10px;
-  border: 3px solid rgb(0, 135, 189);
+  border: 3px solid #0087bd;
   border-bottom: none;
   cursor: pointer;
   width: 100%;
   text-align: center;
   font-weight: bold;
   font-size: large;
-  color: rgb(0, 135, 189);
+  color: #0087bd;
 }
 .tab-btn:first-child {
   border-right: none;
@@ -60,13 +68,13 @@ function navToRoute(route: string) {
   border-left: none;
 }
 .tab-btn.selected {
-  background-color: rgb(0, 135, 189);
+  background-color: #0087bd;
   color: white;
 }
 
 @media (min-width: 1024px) {
   .tab-btn {
-    border: 3px solid rgb(0, 135, 189);
+    border: 3px solid #0087bd;
     border-bottom: none;
     max-width: 8rem;
   }

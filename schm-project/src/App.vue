@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import Tabs from './components/Tabs.vue'
-import NewContractForm from './components/NewContractForm.vue'
+import { RouterView } from 'vue-router'
+import Tabs from '@/components/Tabs.vue'
+import Header from '@/components/Header.vue'
 </script>
 
 <template>
+  <Header></Header>
   <Tabs />
   <RouterView />
-  <NewContractForm style="z-index: 10000" />
 </template>
 
 <style scoped></style>

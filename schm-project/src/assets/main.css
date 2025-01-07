@@ -10,7 +10,7 @@
 a,
 .green {
   text-decoration: none;
-  color: rgb(0, 135, 189);
+  color: #0087bd;
   transition: 0.4s;
   padding: 3px;
 }
@@ -20,6 +20,35 @@ a,
 }
 .mr-auto {
   margin-right: auto;
+}
+.text-right {
+  text-align: right;
+}
+
+.btn-secondary {
+  background-color: white;
+  border-width: 3px;
+  border-color: #0087bd;
+  font-weight: bold;
+  white-space: nowrap;
+  color: #0087bd;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+.btn-secondary:hover {
+  border-width: 3px;
+  border-color: #0087bd;
+  background-color: #0087bd;
+  color: white;
+}
+.bold {
+  font-weight: bold;
+}
+
+.btn-undo {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-color: #f5c6cb;
 }
 
 @media (hover: hover) {

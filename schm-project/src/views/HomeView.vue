@@ -1,14 +1,22 @@
 <script setup lang="ts">
-import NewContractForm from '../components/NewContractForm.vue'
 import type { Contract } from '../models/contract'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useContractStore } from '../stores/use-contract-store'
 import { PayloadStatus } from '../enums/payload-status'
+import { useRoute } from 'vue-router'
+import NewContractForm from '@/components/NewContractForm.vue'
 
-const { contracts } = useContractStore();
+const route = useRoute()
 
-onMounted(() => {
+const { contracts } = useContractStore()
+
+const displayContracts = computed(() => {
+  return contracts.filter((contract) => !!contract.completed == (route.path === '/history'))
 })
+
+const contractCompleted = (contract: Contract) => {
+  return contract.payloads.every((payload) => payload.status === PayloadStatus.Delivered)
+}
 </script>
 
 <style scoped>
@@ -20,6 +28,8 @@ onMounted(() => {
   box-shadow: 0 0 0.5rem 0.25rem grey;
   margin-top: 1rem;
   margin-bottom: 1rem;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
 }
 .contract-block-header {
   display: flex;
@@ -50,14 +60,24 @@ onMounted(() => {
 
 <template>
   <main>
-    <!--<NewContractForm />-->
     <div id="main-contract-list">
-      <div v-for="contract in contracts" id="destination-instance" class="contract-block">
+      <div v-for="contract in displayContracts" id="destination-instance" class="contract-block">
         <div id="destination-instance-header" class="contract-block-header d-flex">
           <h2>{{ contract.name }}</h2>
           <h2>{{ contract.price }}<span class="bold" style="font-size: medium"> auec</span></h2>
         </div>
-        <div v-for="payload in contract.payloads" class="contract-block-body">
+        <div v-if="contract.completed">
+          <div>
+            <Button class="btn btn-undo w-100 mx-auto" @click="contract.completed = false"
+              >Resume Contract</Button
+            >
+          </div>
+        </div>
+        <div
+          v-if="!contract.completed"
+          v-for="payload in contract.payloads"
+          class="contract-block-body"
+        >
           <div id="destination-instance-payload" class="d-flex">
             <div class="w-100">
               <div class="d-flex" style="position: relative">
@@ -79,15 +99,49 @@ onMounted(() => {
               </div>
             </div>
             <div>
-            <div style="width: auto; text-wrap: nowrap">Status: {{ payload.status }}</div>
-            <Button class="btn btn-primary" v-if="payload.status === PayloadStatus.Ready" @click="payload.status = PayloadStatus.Collected">Collect</Button>
-            <Button class="btn btn-primary" v-if="payload.status === PayloadStatus.Collected" @click="payload.status = PayloadStatus.Delivered">Delivered</Button>
-          </div>
+              <div style="width: auto; text-wrap: nowrap">Status: {{ payload.status }}</div>
+            </div>
           </div>
           <p>{{ payload.originID }} -> {{ payload.destinationID }}</p>
+          <div class="d-flex text-center">
+            <Button
+              class="btn btn-primary w-50 ml-auto"
+              v-if="payload.status === PayloadStatus.Ready"
+              @click="payload.status = PayloadStatus.Collected"
+              >Collect</Button
+            >
+            <Button
+              class="btn btn-primary w-50 ml-auto"
+              v-if="payload.status === PayloadStatus.Collected"
+              @click="payload.status = PayloadStatus.Delivered"
+              >Delivered</Button
+            >
+            <Button
+              class="btn btn-undo w-50 ml-auto"
+              v-if="payload.status === PayloadStatus.Collected"
+              @click="payload.status = PayloadStatus.Ready"
+              >Uncollect</Button
+            >
+            <Button
+              class="btn btn-undo w-50 ml-auto"
+              v-if="payload.status === PayloadStatus.Delivered"
+              @click="payload.status = PayloadStatus.Collected"
+              >Undeliver</Button
+            >
+          </div>
+        </div>
+
+        <div>
+          <Button
+            class="btn btn-primary w-100 mx-auto mt-3"
+            v-if="contractCompleted(contract) && !contract.completed"
+            @click="contract.completed = true"
+            >Complete Contract</Button
+          >
         </div>
       </div>
     </div>
     <div id="main-destination-list"></div>
+    <NewContractForm v-if="route.path == '/'" style="z-index: 10000" />
   </main>
 </template>

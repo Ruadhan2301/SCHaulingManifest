@@ -1,11 +1,14 @@
 <template>
-  <input
-    type="text"
-    v-model="val"
-    :placeholder="props.placeholder"
-    class="dropdown-input w-100"
-    @input="onInput"
-  />
+  <div>
+    <label v-show="props.label" class="bold" style="margin-left: 0.25rem">{{ props.label }}</label>
+    <input
+      type="text"
+      v-model="val"
+      :placeholder="props.placeholder"
+      class="dropdown-input w-100 mt-1"
+      @input="onInput"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -16,6 +19,7 @@ interface IProps {
   modelValue?: any
   disabled?: boolean
   placeholder?: string
+  label?: string
 }
 
 const emit = defineEmits(['update:modelValue'])

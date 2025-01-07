@@ -1,12 +1,13 @@
 <template>
   <div class="w-100 text-right">
-    <Button class="btn btn-secondary ml-auto" style="width: 8rem" @click="OpenNewContract"
+    <Button class="btn btn-secondary w-100 md:w-8 my-1" style="width: 8rem" @click="OpenNewContract"
       >New Contract</Button
     >
   </div>
   <div v-if="showForm" class="w-100 h-100" style="background-color: black">
     <div class="new-contract-form">
-      <div>
+      <div class="d-flex my-2">
+        <h3>New Contract</h3>
         <div
           class="btn btn-secondary float-right"
           style="margin-left: auto; width: 5rem; float: right"
@@ -15,13 +16,13 @@
           Close
         </div>
       </div>
-      <h3>New Contract</h3>
       <div class="d-flex mb-3 w-100">
-        <FieldInput v-model="newContract.name" placeholder="Contract Name.." />
-        <FieldInput v-model="newContract.price" placeholder="price*" />
-      </div>
-      <div v-if="!addingPayload" class="mb-3">
-        <div class="btn btn-primary ml-auto" @click="addPayload">Add Payload</div>
+        <FieldInput
+          v-model="newContract.name"
+          placeholder="Contract Name.."
+          label="Contract Name"
+        />
+        <FieldInput v-model="newContract.price" placeholder="price*" label="Payout (auec)" />
       </div>
       <div v-if="addingPayload" class="border-thin p-3">
         <div class="d-flex mb-3 w-100 gap-3">
@@ -29,19 +30,26 @@
             :options="selectableCommodities"
             v-model="newPayload.commodityID"
             placeholder="Commodity.."
+            label="Commodity"
           />
-          <FieldInput v-model="newPayload.quantity" placeholder="quantity.." />
+          <FieldInput
+            v-model="newPayload.quantity"
+            placeholder="quantity.."
+            label="Quantity (scu)"
+          />
         </div>
         <div class="d-flex mb-3 w-100">
           <SearchableDropdown
             :options="selectableLocations"
             v-model="newPayload.originID"
             placeholder="Origin.."
-          /><span class="mx-3" style="font-weight: bold; font-size: xx-large">→</span>
+            label="Origin"
+          /><span class="mx-3 mt-4" style="font-weight: bold; font-size: xx-large">➧</span>
           <SearchableDropdown
             :options="selectableLocations"
             v-model="newPayload.destinationID"
             placeholder="Destination.."
+            label="Destination"
           />
         </div>
         <div class="d-flex">
@@ -60,6 +68,14 @@
         <div>Quantity: {{ payload.quantity }}scu</div>
         <div>Origin: {{ payload.originID }}</div>
         <div>Destination: {{ payload.destinationID }}</div>
+      </div>
+
+      <div
+        v-if="!addingPayload"
+        class="mb-3"
+        style="background: whitesmoke; padding: 0.5rem; text-align: center"
+      >
+        <div class="btn btn-primary ml-auto" @click="addPayload">Add Payload</div>
       </div>
       <div class="w-100 text-center">
         <Button
@@ -85,10 +101,6 @@ import { Commodities } from '@/enums/commodities'
 import SearchableDropdown from './SearchableDropdown.vue'
 import FieldInput from './FieldInput.vue'
 import type { Payload } from '@/models/payload'
-
-onMounted(() => {
-  console.log('NewContractForm mounted')
-})
 
 const locations = Object.values(Locations) as string[]
 const commodities = Object.values(Commodities) as string[]
@@ -149,11 +161,9 @@ const OpenNewContract = () => {
   showForm.value = true
 }
 const closeContract = () => {
-  console.log('Close Contract')
   showForm.value = false
 }
 const submitContract = () => {
-  console.log('Submit Contract')
   useContractStore().addContract(newContract.value)
   showForm.value = false
 }
@@ -168,7 +178,6 @@ const closePayloadAndAdd = () => {
     !newPayload.value.destinationID ||
     !newPayload.value.quantity
   ) {
-    console.log('Missing fields')
     return
   }
   newContract.value.payloads.push({ id: newContract.value.payloads.length, ...newPayload.value })
@@ -182,7 +191,6 @@ const addPayload = () => {
     destinationID: '',
     status: PayloadStatus.Ready,
   }
-  console.log('Add Payload')
 }
 </script>
 
@@ -213,9 +221,7 @@ const addPayload = () => {
   border-bottom: 1px solid grey;
   padding: 0.25rem 0.5rem;
 }
-.new-contract-form-payloadblock:nth-child(odd) {
-  background-color: lightgrey;
-  border-bottom: 1px solid grey;
+.new-contract-form-payloadblock {
   padding: 0.25rem 0.5rem;
 }
 .new-contract-form-payloadblock:nth-child(odd) {
