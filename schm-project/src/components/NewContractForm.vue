@@ -4,8 +4,9 @@
       >New Contract</Button
     >
   </div>
-  <div v-if="showForm" class="w-100 h-100" style="background-color: black">
-    <div class="new-contract-form">
+  <div style="position: absolute; top:0;">
+  <div v-if="showForm" class="w-100 h-100" style="background-color: #00000080; position: fixed;">
+    <div class="new-contract-form" style="top: 30%; left: 0; transform: translateY(-50%);">
       <div class="d-flex my-2">
         <h3>New Contract</h3>
         <div
@@ -88,6 +89,7 @@
         </Button>
       </div>
     </div>
+  </div>
   </div>
 </template>
 

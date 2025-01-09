@@ -6,4 +6,5 @@ export interface Contract {
   price?: number
   payloads: Payload[]
   completed?: boolean
+  cancelled?: boolean
 }

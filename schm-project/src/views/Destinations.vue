@@ -52,27 +52,6 @@ const origins = computed(() => {
 </script>
 
 <style scoped>
-.contract-block {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid black;
-  margin: 10px;
-}
-.contract-block-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid black;
-  font-weight: bold;
-  padding: 0.25rem;
-}
-.contract-block-body {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid grey;
-  padding: 0.25rem 0.5rem;
-}
 
 #destination-instance-payload:nth-child(odd) {
   background-color: white;
@@ -84,17 +63,6 @@ const origins = computed(() => {
 }
 #destination-instance-payload.disabled {
   opacity: 0.5;
-}
-.circle-count {
-  border-radius: 100%;
-  background-color: rgb(0, 135, 189);
-  color: white;
-  padding: 0.25rem;
-  width: 3rem;
-  height: 3rem;
-  text-align: center;
-  font-weight: bold;
-  padding-top: 0.65rem;
 }
 #main-destination-list {
   background: whitesmoke;
@@ -157,6 +125,7 @@ const origins = computed(() => {
               >
             </div>
           </div>
+          <p class="text-sm">{{ payload.originID }} -> {{ payload.destinationID }}</p>
         </div>
       </div>
     </div>
@@ -205,6 +174,7 @@ const origins = computed(() => {
               >
             </div>
           </div>
+          <p class="text-sm">{{ payload.originID }} -> {{ payload.destinationID }}</p>
         </div>
       </div>
     </div>
