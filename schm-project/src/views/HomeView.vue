@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import type { Contract } from '../models/contract'
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useContractStore } from '../stores/use-contract-store'
 import { PayloadStatus } from '../enums/payload-status'
 import { useRoute } from 'vue-router'
-import NewContractForm from '@/components/NewContractForm.vue'
 
 const route = useRoute()
 
@@ -17,9 +16,19 @@ const displayContracts = computed(() => {
 const contractCompleted = (contract: Contract) => {
   return contract.payloads.every((payload) => payload.status === PayloadStatus.Delivered)
 }
+const contractPayout = (contract: Contract) => {
+  return new Intl.NumberFormat().format(contract.price ?? 0);//contract.price?.toLocaleString('en');
+}
+
 </script>
 
 <style scoped>
+h2{
+  color:#2c5768;
+  font-weight:bold;
+  padding-left:0.5rem;
+  padding-right:0.5rem;
+}
 .contract-block {
   display: flex;
   flex-direction: column;
@@ -48,22 +57,15 @@ const contractCompleted = (contract: Contract) => {
 </style>
 
 <template>
-  <main>
-    <div id="main-contract-list">
+  <main class="mb-5">
+    <div id="main-contract-list" class="mx-auto text-center" style="max-width: 50rem">
       <div v-for="contract in displayContracts" id="destination-instance" class="contract-block">
         <div id="destination-instance-header" class="contract-block-header d-flex">
           <h2>{{ contract.name }}</h2>
-          <h2>{{ contract.price }}<span class="bold" style="font-size: medium"> auec</span></h2>
+          <h2>{{ contractPayout(contract) }}<span class="bold" style="font-size: medium"> auec</span></h2>
         </div>
-        <div v-if="contract.completed || contract.cancelled">
-          <div>
-            <Button class="btn btn-undo w-100 mx-auto" @click="contract.completed = false"
-              >Resume Contract</Button
-            >
-          </div>
-        </div>
+        
         <div
-          v-if="!contract.completed && !contract.cancelled"
           v-for="payload in contract.payloads"
           class="contract-block-body"
         >
@@ -100,7 +102,8 @@ const contractCompleted = (contract: Contract) => {
             </div>
           </div>
           <p>{{ payload.originID }} -> {{ payload.destinationID }}</p>
-          <div class="d-flex text-center">
+          <div
+          v-if="!contract.completed && !contract.cancelled" class="d-flex text-center gap-2">
             <Button
               class="btn btn-primary w-50 ml-auto"
               v-if="payload.status === PayloadStatus.Ready"
@@ -135,6 +138,13 @@ const contractCompleted = (contract: Contract) => {
             @click="contract.completed = true"
             >Complete Contract</Button
           >
+        </div>
+        <div v-if="contract.completed || contract.cancelled">
+          <div>
+            <Button class="btn btn-undo w-100 mx-auto" @click="contract.completed = false"
+              >Resume Contract</Button
+            >
+          </div>
         </div>
       </div>
     </div>

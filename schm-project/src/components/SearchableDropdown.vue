@@ -39,7 +39,7 @@
 </style>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 
 import { defineProps } from 'vue'
 import type { IOptions } from './Interfaces/Fields'
@@ -72,6 +72,16 @@ const onFocus = () => {
   showDropdown()
   selectFieldInput()
 }
+
+onMounted(() => {
+  if (props.modelValue) {
+    const selectedOption = props.options?.find((option) => option.value === props.modelValue)
+    if (selectedOption) {
+      inputSearch.value = selectedOption.label
+    }
+    val.value = props.modelValue
+  }
+})
 
 const hideDropdown = () => {
   isFocused.value = false
@@ -128,8 +138,18 @@ const selectFirstOption = () => {
 }
 
 watch(
+  () => inputSearch.value,
+  (newValue) => {
+    if (newValue === '') {
+      val.value = '';
+      onInput();
+    }
+  },
+)
+
+watch(
   () => props.modelValue,
-  (newValue) => (val.value = newValue ?? ''),
+  (newValue,oldvalue) => (val.value = newValue ?? ''),
   {
     immediate: true,
   },

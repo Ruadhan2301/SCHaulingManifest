@@ -1,12 +1,12 @@
 <template>
-  <div class="w-100 text-right">
-    <Button class="btn btn-secondary w-100 md:w-8 my-1" style="width: 8rem" @click="OpenNewContract"
+  <div class="w-100 text-center">
+    <Button class="btn btn-secondary w-100 my-1 mx-auto" style="max-width: 25rem" @click="OpenNewContract"
       >New Contract</Button
     >
   </div>
   <div style="position: absolute; top:0;">
-  <div v-if="showForm" class="w-100 h-100" style="background-color: #00000080; position: fixed;">
-    <div class="new-contract-form" style="top: 30%; left: 0; transform: translateY(-50%);">
+  <div v-if="showForm" class="w-100 h-100" style="background-color: #00000080; position: fixed; left:0;top:0;">
+    <div class="new-contract-form" style="top: 5rem; left: 50%; transform: translateX(-50%);">
       <div class="d-flex my-2">
         <h3>New Contract</h3>
         <div
@@ -64,11 +64,13 @@
           >
         </div>
       </div>
-      <div v-for="payload in newContract.payloads" class="new-contract-form-payloadblock">
-        <div>Commodity: {{ payload.commodityID }}</div>
-        <div>Quantity: {{ payload.quantity }}scu</div>
-        <div>Origin: {{ payload.originID }}</div>
-        <div>Destination: {{ payload.destinationID }}</div>
+      <div v-else style="position: relative; max-height: 15rem; overflow-y: auto;">
+        <div v-for="payload in newContract.payloads" class="new-contract-form-payloadblock">
+          <div>Commodity: {{ payload.commodityID }}</div>
+          <div>Quantity: {{ payload.quantity }}scu</div>
+          <div>Origin: {{ payload.originID }}</div>
+          <div>Destination: {{ payload.destinationID }}</div>
+        </div>
       </div>
 
       <div
@@ -186,11 +188,13 @@ const closePayloadAndAdd = () => {
   addingPayload.value = false
 }
 const addPayload = () => {
-  addingPayload.value = true
+  addingPayload.value = true;
+  console.log(newPayload.value)
   newPayload.value = {
+    ...newPayload.value,
+    id: newContract.value.payloads.length,
     commodityID: '',
-    originID: '',
-    destinationID: '',
+    quantity: 0,
     status: PayloadStatus.Ready,
   }
 }

@@ -53,11 +53,11 @@ const origins = computed(() => {
 
 <style scoped>
 
-#destination-instance-payload:nth-child(odd) {
+#destination-instance-payload:nth-child(even) {
   background-color: white;
   padding: 0.25rem 0.5rem;
 }
-#destination-instance-payload:nth-child(even) {
+#destination-instance-payload:nth-child(odd) {
   background-color: whitesmoke;
   padding: 0.25rem 0.5rem;
 }
@@ -67,23 +67,32 @@ const origins = computed(() => {
 #main-destination-list {
   background: whitesmoke;
   border-left: 5px solid rgb(0, 135, 189);
-  border-top: 3px solid rgb(0, 135, 189);
+  border-top: 5px solid rgb(0, 135, 189);
+  border-top-left-radius: 0.5rem;
+  padding-left:0.25rem;
+  padding-top:0.25rem;
+  margin-left:0.25rem;
+  margin-right:0.25rem;
 }
 .main-destination-heading {
   margin-top: 1rem;
   margin-bottom: 0;
-  background: rgb(0, 135, 189);
+  background: #0087bd;
   color: white;
   padding: 0.5rem;
+  border-radius: 0.5rem;
+  margin-left:0.25rem;
+  margin-right:0.25rem;
 }
 </style>
 
 <template>
-  <main>
+  <main class="mb-5 md:d-flex mx-auto" style="max-width: 50rem">
+    <div style="min-width: 49%;">
     <h3 class="main-destination-heading">Origins</h3>
-    <div id="main-destination-list">
-      <div v-for="destination in origins">
-        <h4>{{ destination.name }}</h4>
+    <div>
+      <div id="main-destination-list" v-for="destination in origins" class="mt-2">
+        <h4 class="">{{ destination.name }}</h4>
         <div
           v-for="payload in destination.payloads"
           id="destination-instance-payload"
@@ -129,9 +138,12 @@ const origins = computed(() => {
         </div>
       </div>
     </div>
+  </div>
+  <div class="d-none md:d-block" style="height:100%; width:2%;"></div>
+  <div style="min-width: 49%;">
     <h3 class="main-destination-heading">Destinations</h3>
-    <div id="main-destination-list">
-      <div v-for="destination in destinations">
+    <div>
+      <div id="main-destination-list" v-for="destination in destinations" class="mt-2">
         <h3>{{ destination.name }}</h3>
         <div
           v-for="payload in destination.payloads"
@@ -178,5 +190,6 @@ const origins = computed(() => {
         </div>
       </div>
     </div>
+  </div>
   </main>
 </template>

@@ -1,10 +1,8 @@
 <template>
-  <div class="header">
+  <div class="footer">
     <div id="title">
-      <h4 >Star Citizen Hauling Manifest</h4>
+      <p>V1.1 Ruadhan2300 (2024)</p>
     </div>
-    <Tabs />
-    <NewContractForm v-if="route.path == '/'" style="z-index: 10000;" />
   </div>
 </template>
 
@@ -17,26 +15,27 @@ const route = useRoute()
 </script>
 
 <style scoped>
-.header{
-    position: sticky;
-    top: 0;
+.footer{
+    bottom: 0;
     background: white;
-    z-index: 1000;
+    left:0;
+    right:0;
+    position:fixed;
 }
 #title {
-  padding: 0.5rem 0.5rem;
+  padding: 0.15rem 0.5rem;
   background-color: #2c5768;
   color:white;
-  margin-bottom:2px;
 }
 #title h4 {
   font-weight:bold;
   font-size: larger;
 }
 #title p {
-  font-size: small;
+  font-size: xx-small;
+  font-weight: bold;
   color: #ffd400;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0;
 }
 
 @media (min-width: 1024px) {

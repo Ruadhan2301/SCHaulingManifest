@@ -1,5 +1,6 @@
 <template>
-  <div class="tabs">
+  <div class="text-center tabs">
+  <div id="tabs-inner-layer">
     <!--<nav>
       <router-link to="/" exact>Contracts</router-link> |
       <router-link to="/destinations">Destinations</router-link> |
@@ -33,6 +34,7 @@
       </div>-->
     </div>
   </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -50,17 +52,25 @@ function navToRoute(route: string) {
 .tabs {
   border-bottom: 3px solid #0087bd;
 }
+#tabs-inner-layer{
+  margin-left:auto;
+  margin-right:auto;
+  width:100%;
+  min-width:100%;
+}
 .tab-btn {
   padding: 10px;
   border: 3px solid #0087bd;
   border-bottom: none;
   cursor: pointer;
   width: 100%;
+  min-width: 33%;
   text-align: center;
   font-weight: bold;
   font-size: large;
   color: #0087bd;
 }
+
 .tab-btn:first-child {
   border-right: none;
 }
@@ -73,10 +83,17 @@ function navToRoute(route: string) {
 }
 
 @media (min-width: 1024px) {
+  
+#tabs-inner-layer{
+  margin-left:auto;
+  margin-right:auto;
+  width:fit-content;
+  min-width:fit-content;
+}
   .tab-btn {
     border: 3px solid #0087bd;
-    border-bottom: none;
-    max-width: 8rem;
+    border-bottom: none;  
+    min-width: 8.25rem;
   }
   .tab-btn:first-child {
     border-top-left-radius: 0.5rem;
