@@ -1,5 +1,5 @@
 <template>
-  <div class="w-100 text-center d-flex">
+  <div class="w-100 text-center md-flex">
     <Button class="btn btn-secondary w-100 my-1 mx-auto" style="max-width: 25rem" @click="OpenNewContract"
       >New Contract</Button>
     <Button class="btn btn-secondary w-100 my-1 mx-auto" style="max-width: 25rem" @click="OpenCaptureMode"
@@ -96,11 +96,20 @@
         <div class="d-flex">
           <div class="btn btn-primary" @click="closePayload">Cancel</div>
           <Button
+          v-if="!editingPayload"
             class="btn btn-secondary"
             style="margin-left: auto"
             :disabled="newPayloadValid"
             @click="closePayloadAndAdd"
             >Add</Button
+          >
+          <Button
+          v-if="editingPayload"
+            class="btn btn-secondary"
+            style="margin-left: auto"
+            :disabled="newPayloadValid"
+            @click="closePayloadAndUpdate"
+            >Update</Button
           >
         </div>
       </div>
@@ -110,6 +119,7 @@
           <div>Quantity: {{ payload.quantity }}scu</div>
           <div>Origin: {{ payload.originID }}</div>
           <div>Destination: {{ payload.destinationID }}</div>
+          <Button class="btn btn-secondary" @click="openPayload(payload)">Edit</Button>
         </div>
       </div>
 
@@ -156,7 +166,7 @@ const captureMode = ref(false);
 const loadingCapture = ref(false);
 
 let width = 1920;    // We will scale the photo width to this
-  let height = 0;     // This will be computed based on the input stream
+  let height = 1080;     // This will be computed based on the input stream
 
   let streaming = false;
 
@@ -280,7 +290,6 @@ const parseResults = (text:string) =>
     }
   }
 
-  console.log("Parsing MissionText", missionText);
   let commodity = ''
   let origin = ''
   let destination = ''
@@ -295,15 +304,15 @@ const parseResults = (text:string) =>
     if(row.startsWith("Collect")){
         //Extract Commodity
         //Extract Origin
-        let text = row.replace('Collect ','').replace(' from ',',').replace('.','');
+        let text = row.replace('Collect ','').replace(' from ',',').replace('.','').replace('LS','L5');
         let textParts = text.split(',');
         commodity = textParts[0];
         origin = textParts[1];
     }
-    if(row.startsWith("Deliver")){
+    if(row.startsWith("Deliver") || row.startsWith("Oeliver")){
       //Extract Quantity
       //Extract Destination
-        let text = row.replace('Deliver ','').replace(' to ',',').replace('.','');
+        let text = row.replace('Deliver ','').replace('Oeliver ','').replace(' to ',',').replace('.','').replace('LS','L5');
         let textParts = text.split(',');
         quantity = Number.parseInt(textParts[0].replace('0/','').replace(' SCU',''));
         destination = textParts[1];
@@ -335,6 +344,7 @@ const selectableCommodities = computed(() => {
 
 const showForm = ref(false)
 const addingPayload = ref(false)
+const editingPayload = ref(false)
 
 const newContract = ref<Contract>({
   id: -1,
@@ -367,6 +377,12 @@ const newPayloadValid = computed(() => {
     !newPayload.value.quantity
   )
 })
+
+const openPayload = (payload: Payload) => {
+  newPayload.value = payload;
+  addingPayload.value = true;
+  editingPayload.value = true;
+}
 
 const OpenCaptureMode = () => {
 
@@ -412,9 +428,24 @@ const closePayloadAndAdd = () => {
   newContract.value.payloads.push({ id: newContract.value.payloads.length, ...newPayload.value })
   addingPayload.value = false
 }
+
+const closePayloadAndUpdate = () => {
+  if (
+    !newPayload.value.commodityID ||
+    !newPayload.value.originID ||
+    !newPayload.value.destinationID ||
+    !newPayload.value.quantity
+  ) {
+    return
+  }
+  newContract.value.payloads = newContract.value.payloads.filter((p) => p.id != newPayload.value.id);
+  newContract.value.payloads.push({...newPayload.value })
+
+  addingPayload.value = false
+}
+
 const addPayload = () => {
   addingPayload.value = true;
-  console.log(newPayload.value)
   newPayload.value = {
     ...newPayload.value,
     id: newContract.value.payloads.length,
