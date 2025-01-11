@@ -1,12 +1,18 @@
 <template>
-  <div class="w-100 text-center">
+  <div class="w-100 text-center d-flex">
     <Button class="btn btn-secondary w-100 my-1 mx-auto" style="max-width: 25rem" @click="OpenNewContract"
-      >New Contract</Button
-    >
+      >New Contract</Button>
+    <Button class="btn btn-secondary w-100 my-1 mx-auto" style="max-width: 25rem" @click="OpenCaptureMode"
+      >Capture Mode (Experimental)</Button>
+      
   </div>
+  
   <div style="position: absolute; top:0;">
-  <div v-if="showForm" class="w-100 h-100" style="background-color: #00000080; position: fixed; left:0;top:0;">
+  <div v-show="showForm" class="w-100 h-100" style="background-color: #00000080; position: fixed; left:0;top:0;">
+    
     <div class="new-contract-form" style="top: 5rem; left: 50%; transform: translateX(-50%);">
+      
+      <div>
       <div class="d-flex my-2">
         <h3>New Contract</h3>
         <div
@@ -17,6 +23,40 @@
           Close
         </div>
       </div>
+      <div v-show="captureMode" class="text-center">
+        <div>
+          <div class="d-flex d-none" v-show="!loadingCapture">
+            <video id="video" class="d-none">Video stream not available.</video>
+            <canvas id="canvas" class="d-none"></canvas>
+            <img id="photo" alt="The screen capture will appear in this box." class="mx-auto" style="width:19rem;height:10rem; background-color: grey;" />
+          </div>
+          <div v-if="!loadingCapture" class="mx-auto p-2" style="background-color: whitesmoke;">
+            <p>
+            This is an experimental feature
+          </p><p>
+            It will request permission to access your screen, and if provided with a version of your Monitor which has the Contract data (ie: Star Citizen) it will take a screenshot and pass it to the Tesseract OCR API.
+          </p><p>
+            No information is saved, and the image is deleted/overwritten every time you use this function.
+          </p><p>
+            The picture is purely used to extract Contract data in the following formats:</p>
+            <p>"Collect (Commodity) from (Origin)"</p>
+            <p>"Deliver (Quantity) to (Destination)"</p>
+            
+          </div>
+          <div v-if="loadingCapture" class="mx-auto" style="width:19rem;height:10rem; background-color: lightgrey;">
+            <div class="spinner-border text-primary mt-3" style="color:grey !important; --bs-spinner-width: 5rem;
+    --bs-spinner-height: 5rem;" role="status">
+              <span class="sr-only"></span>
+            </div>
+            <div>Loading...</div>
+          </div>
+        </div>
+        <Button v-if="!canCapture" class="btn btn-secondary w-100 my-1 mx-auto" style="max-width: 25rem" @click="setTarget"
+        >Get Started</Button>
+        <Button v-if="canCapture" :disabled="loadingCapture" class="btn btn-secondary w-100 my-1 mx-auto" style="max-width: 25rem" @click="testimage"
+        >Capture Screen</Button>
+      </div>
+      <div v-if="!captureMode">
       <div class="d-flex mb-3 w-100">
         <FieldInput
           v-model="newContract.name"
@@ -92,6 +132,8 @@
       </div>
     </div>
   </div>
+    </div>
+  </div>
   </div>
 </template>
 
@@ -105,9 +147,179 @@ import { Commodities } from '@/enums/commodities'
 import SearchableDropdown from './SearchableDropdown.vue'
 import FieldInput from './FieldInput.vue'
 import type { Payload } from '@/models/payload'
+import { createWorker } from 'tesseract.js';
 
 const locations = Object.values(Locations) as string[]
 const commodities = Object.values(Commodities) as string[]
+
+const captureMode = ref(false);
+const loadingCapture = ref(false);
+
+let width = 1920;    // We will scale the photo width to this
+  let height = 0;     // This will be computed based on the input stream
+
+  let streaming = false;
+
+  let video:any = null;
+  let canvas:any = null;
+  let photo:any = null;
+  let startButton:any = null;
+
+  onMounted(() => {
+  video = document.getElementById('video');
+  canvas = document.getElementById('canvas');
+  photo = document.getElementById('photo');
+  startButton = document.getElementById('start-button');
+console.log(video);
+
+    video.addEventListener(
+    "canplay",
+    () => {
+      if (!streaming) {
+        height = (video.videoHeight / video.videoWidth) * width;
+
+        video.setAttribute("width", width);
+        video.setAttribute("height", height);
+        canvas.setAttribute("width", width);
+        canvas.setAttribute("height", height);
+        streaming = true;
+        // immediately take a screenshot
+        getPhoto();
+      }
+    },
+    false,
+  );
+  })
+
+const getPhoto = () => {
+  const context = canvas.getContext("2d");
+        if (width && height) {
+          canvas.width = width;
+          canvas.height = height;
+          context.drawImage(video, 0, 0, width, height);
+
+          const data = canvas.toDataURL("image/png");
+          photo.setAttribute("src", data);
+        } else {
+          clearImage();
+        }
+}
+
+async function getMedia() {
+
+  clearImage();
+
+  //Get screenshot of the user's screen
+  await navigator.mediaDevices.getDisplayMedia({
+    video: {
+      displaySurface: "monitor",
+    },
+    audio: false
+  })
+  .then((stream) => {
+    video.srcObject = stream;
+    video.play();
+  })
+  .catch((err) => {
+    console.error(`An error occurred: ${err}`);
+  });
+  
+  
+}
+
+const clearImage = () => {
+  const context = canvas.getContext("2d");
+  context.fillStyle = "#AAA";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  const data = canvas.toDataURL("image/png");
+  photo.setAttribute("src", data);
+}
+const canCapture = ref(false);
+const setTarget = () => {
+  getMedia();
+  canCapture.value = true;
+}
+
+const testimage = async () =>
+{
+  loadingCapture.value = true;
+  getPhoto();
+  //await getMedia();
+  //run Tesseract against media
+  if(!photo) return;
+    const worker = await createWorker('eng');
+    const ret = await worker.recognize(photo);
+    parseResults(ret.data.text);
+    await worker.terminate();
+  
+  loadingCapture.value = false;
+}
+
+const parseResults = (text:string) =>
+{
+  //split string by regex looking for ©, < or > symbols
+  let rows = text.split(/[©©<>]/);
+
+  //Identify strings that start with ©, < or > symbols and end with ©, <, > or \ symbols, and return as an array
+  const matchedStrings = text.match(/[©¢<>][^©¢<>\\]*[.]/g) || [];
+
+  //let rows = text.split('©');
+
+  //text =text.replace('© ', '') //cleanup
+  let missionText = []
+  
+  for (let i in matchedStrings){
+    let outputString = matchedStrings[i].replace(/[©¢<>]/g,'').trim();
+    outputString = outputString.split('.')[0];
+    if(outputString.startsWith("Collect")){      
+      missionText.push(outputString);
+    }
+    if(outputString.startsWith("Deliver")){
+      missionText.push(outputString);
+    }
+  }
+
+  console.log("Parsing MissionText", missionText);
+  let commodity = ''
+  let origin = ''
+  let destination = ''
+  let quantity = 0;
+  newContract.value = {
+    id: useContractStore().contracts.length,
+    name: 'Contract ' + (useContractStore().contracts.length + 1),
+    payloads: [],
+  }
+  for(let i in missionText){
+    let row = missionText[i];
+    if(row.startsWith("Collect")){
+        //Extract Commodity
+        //Extract Origin
+        let text = row.replace('Collect ','').replace(' from ',',').replace('.','');
+        let textParts = text.split(',');
+        commodity = textParts[0];
+        origin = textParts[1];
+    }
+    if(row.startsWith("Deliver")){
+      //Extract Quantity
+      //Extract Destination
+        let text = row.replace('Deliver ','').replace(' to ',',').replace('.','');
+        let textParts = text.split(',');
+        quantity = Number.parseInt(textParts[0].replace('0/','').replace(' SCU',''));
+        destination = textParts[1];
+        newContract.value.payloads.push({
+          id: newContract.value.payloads.length,
+          commodityID: commodity,
+          originID: origin,
+          destinationID: destination,
+          quantity: quantity,
+          status: PayloadStatus.Ready
+        })
+    }
+  }
+  captureMode.value = false;
+}
+
 
 const selectableLocations = computed(() => {
   return locations.map((location) => {
@@ -156,12 +368,25 @@ const newPayloadValid = computed(() => {
   )
 })
 
+const OpenCaptureMode = () => {
+
+  newContract.value = {
+    id: useContractStore().contracts.length,
+    name: 'Contract ' + (useContractStore().contracts.length + 1),
+    payloads: [],
+  }
+
+  captureMode.value = true;
+  showForm.value = true;
+}
+
 const OpenNewContract = () => {
   newContract.value = {
     id: useContractStore().contracts.length,
     name: 'Contract ' + (useContractStore().contracts.length + 1),
     payloads: [],
   }
+  captureMode.value = false;
   showForm.value = true
 }
 const closeContract = () => {
