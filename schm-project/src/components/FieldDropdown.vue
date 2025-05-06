@@ -37,11 +37,11 @@ import type { IOptions } from './Interfaces/Fields'
 
 const selectedOption = ref<IOptions>()
 
-const val = ref('')
+const val = ref<string | number>('')
 const isFocused = ref(false)
 
 interface IProps {
-  modelValue?: string
+  modelValue?: string | number
   placeholder?: string
   disabled?: boolean
   options?: IOptions[]
