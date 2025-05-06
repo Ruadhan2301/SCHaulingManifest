@@ -1,7 +1,7 @@
 <template>
   <div class="footer">
     <div id="title">
-      <p>V1.2 Ruadhan2300 (2024)</p>
+      <p>V1.3 Ruadhan2300 (2025)</p>
     </div>
   </div>
 </template>

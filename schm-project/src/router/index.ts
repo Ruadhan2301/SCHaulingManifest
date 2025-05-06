@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import PayloadCalc from '@/views/PayloadCalc.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -33,7 +34,7 @@ const router = createRouter({
     {
       path: '/calculator',
       name: 'PayloadCalculator',
-      component: () => import('../views/PayloadCalc.vue'),
+      component: PayloadCalc,
     },
   ],
 })
