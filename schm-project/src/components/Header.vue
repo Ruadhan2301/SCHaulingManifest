@@ -3,7 +3,7 @@
     <div id="title">
       <h4 >Star Citizen Hauling Manifest</h4>
     </div>
-    <Tabs />
+    <Tabs v-if="route.path!='/calculator'" />
     <NewContractForm v-if="route.path == '/'" style="z-index: 10000;" />
   </div>
 </template>

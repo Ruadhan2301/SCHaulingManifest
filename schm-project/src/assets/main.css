@@ -91,6 +91,9 @@ a,
 }
 
 @media (min-width: 1024px) {
+  .md-flex{
+    display:flex;
+  }
   #app {
     max-width: 1024px;
     padding: 2rem 0;
