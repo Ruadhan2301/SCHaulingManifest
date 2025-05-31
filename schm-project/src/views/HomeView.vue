@@ -104,45 +104,45 @@ h2{
           <p>{{ payload.originID }} -> {{ payload.destinationID }}</p>
           <div
           v-if="!contract.completed && !contract.cancelled" class="d-flex text-center gap-2">
-            <Button
+            <button
               class="btn btn-primary w-50 ml-auto"
               v-if="payload.status === PayloadStatus.Ready"
               @click="payload.status = PayloadStatus.Collected"
-              >Collect</Button
+              >Collect</button
             >
-            <Button
+            <button
               class="btn btn-primary w-50 ml-auto"
               v-if="payload.status === PayloadStatus.Collected"
               @click="payload.status = PayloadStatus.Delivered"
-              >Deliver</Button
+              >Deliver</button
             >
-            <Button
+            <button
               class="btn btn-undo w-50 ml-auto"
               v-if="payload.status === PayloadStatus.Collected"
               @click="payload.status = PayloadStatus.Ready"
-              >Uncollect</Button
+              >Uncollect</button
             >
-            <Button
+            <button
               class="btn btn-undo w-50 ml-auto"
               v-if="payload.status === PayloadStatus.Delivered"
               @click="payload.status = PayloadStatus.Collected"
-              >Undeliver</Button
+              >Undeliver</button
             >
           </div>
         </div>
 
         <div>
-          <Button
+          <button
             class="btn btn-primary w-100 mx-auto mt-3"
             v-if="contractCompleted(contract) && !contract.completed"
             @click="contract.completed = true"
-            >Complete Contract</Button
+            >Complete Contract</button
           >
         </div>
         <div v-if="contract.completed || contract.cancelled">
           <div>
-            <Button class="btn btn-undo w-100 mx-auto" @click="contract.completed = false"
-              >Resume Contract</Button
+            <button class="btn btn-undo w-100 mx-auto" @click="contract.completed = false"
+              >Resume Contract</button
             >
           </div>
         </div>

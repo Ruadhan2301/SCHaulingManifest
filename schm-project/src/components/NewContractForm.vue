@@ -1,9 +1,9 @@
 <template>
   <div class="w-100 text-center md-flex">
-    <Button class="btn btn-secondary w-100 my-1 mx-auto" style="max-width: 25rem" @click="OpenNewContract"
-      >New Contract</Button>
-    <Button class="btn btn-secondary w-100 my-1 mx-auto" style="max-width: 25rem" @click="OpenCaptureMode"
-      >Capture Mode (Experimental)</Button>
+    <button class="btn btn-secondary w-100 my-1 mx-auto" style="max-width: 25rem" @click="OpenNewContract"
+      >New Contract</button>
+    <button class="btn btn-secondary w-100 my-1 mx-auto" style="max-width: 25rem" @click="OpenCaptureMode"
+      >Capture Mode (Experimental)</button>
       
   </div>
   
@@ -27,7 +27,7 @@
         <div>
           <div class="d-flex d-none" v-show="!loadingCapture">
             <video id="video" class="d-none">Video stream not available.</video>
-            <canvas id="canvas" class="d-none"></canvas>
+            <canvas id="canvas" class="d-none" style="filter: invert(1)"></canvas>
             <img id="photo" alt="The screen capture will appear in this box." class="mx-auto" style="width:19rem;height:10rem; background-color: grey;" />
           </div>
           <div v-if="!loadingCapture" class="mx-auto p-2" style="background-color: whitesmoke;">
@@ -51,10 +51,10 @@
             <div>Loading...</div>
           </div>
         </div>
-        <Button v-if="!canCapture" class="btn btn-secondary w-100 my-1 mx-auto" style="max-width: 25rem" @click="setTarget"
-        >Get Started</Button>
-        <Button v-if="canCapture" :disabled="loadingCapture" class="btn btn-secondary w-100 my-1 mx-auto" style="max-width: 25rem" @click="testimage"
-        >Capture Screen</Button>
+        <button v-if="!canCapture" class="btn btn-secondary w-100 my-1 mx-auto" style="max-width: 25rem" @click="setTarget"
+        >Get Started</button>
+        <button v-if="canCapture" :disabled="loadingCapture" class="btn btn-secondary w-100 my-1 mx-auto" style="max-width: 25rem" @click="testimage"
+        >Capture Screen</button>
       </div>
       <div v-if="!captureMode">
       <div class="d-flex mb-3 w-100">
@@ -95,21 +95,21 @@
         </div>
         <div class="d-flex">
           <div class="btn btn-primary" @click="closePayload">Cancel</div>
-          <Button
+          <button
           v-if="!editingPayload"
             class="btn btn-secondary"
             style="margin-left: auto"
             :disabled="newPayloadValid"
             @click="closePayloadAndAdd"
-            >Add</Button
+            >Add</button
           >
-          <Button
+          <button
           v-if="editingPayload"
             class="btn btn-secondary"
             style="margin-left: auto"
             :disabled="newPayloadValid"
             @click="closePayloadAndUpdate"
-            >Update</Button
+            >Update</button
           >
         </div>
       </div>
@@ -119,7 +119,7 @@
           <div>Quantity: {{ payload.quantity }}scu</div>
           <div>Origin: {{ payload.originID }}</div>
           <div>Destination: {{ payload.destinationID }}</div>
-          <Button class="btn btn-secondary" @click="openPayload(payload)">Edit</Button>
+          <button class="btn btn-secondary" @click="openPayload(payload)">Edit</button>
         </div>
       </div>
 
@@ -131,14 +131,14 @@
         <div class="btn btn-primary ml-auto" @click="addPayload">Add Payload</div>
       </div>
       <div class="w-100 text-center">
-        <Button
+        <button
           class="btn btn-primary text-center mx-auto mt-4"
           style="min-width: 8rem"
           @click="submitContract"
           :disabled="!contractValid"
         >
           Submit
-        </Button>
+        </button>
       </div>
     </div>
   </div>
@@ -207,7 +207,7 @@ const getPhoto = () => {
           canvas.width = width;
           canvas.height = height;
           context.drawImage(video, 0, 0, width, height);
-
+          
           const data = canvas.toDataURL("image/png");
           photo.setAttribute("src", data);
         } else {
@@ -268,11 +268,16 @@ const testimage = async () =>
 
 const parseResults = (text:string) =>
 {
+  console.log(text);
   //split string by regex looking for ©, < or > symbols
-  let rows = text.split(/[©©<>]/);
+  //let rows = text.split(/[©©<>]/);
+  //console.log(rows);
 
   //Identify strings that start with ©, < or > symbols and end with ©, <, > or \ symbols, and return as an array
   const matchedStrings = text.match(/[©¢<>][^©¢<>\\]*[.]/g) || [];
+  //const currencyString = text.match(/[o ][1234567890,]*[ ]/g) || [];
+  const currencyString = text.match(/[o©] [\d,\.]+(?=\D)/g) || [];
+  
 
   //let rows = text.split('©');
 
@@ -289,6 +294,7 @@ const parseResults = (text:string) =>
       missionText.push(outputString);
     }
   }
+  //console.log(missionText);
 
   let commodity = ''
   let origin = ''
@@ -326,6 +332,14 @@ const parseResults = (text:string) =>
         })
     }
   }
+
+  console.log(currencyString);
+  if(!!currencyString && currencyString.length > 0){
+    var currencyVal = currencyString[0]!.replace(/[^\d]/g, '');
+    console.log(currencyVal);
+    newContract.value.price = Number.parseInt(currencyVal);
+  }
+
   captureMode.value = false;
 }
 

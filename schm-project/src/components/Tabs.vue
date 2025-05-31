@@ -17,6 +17,13 @@
       >
         Locations
       </div>
+      <div
+        class="tab-btn"
+        :class="[route.path == '/routing' ? 'selected' : '']"
+        @click="navToRoute('/routing')"
+      >
+        Routing
+      </div>
 
       <div
         class="tab-btn"
@@ -61,22 +68,20 @@ function navToRoute(route: string) {
 .tab-btn {
   padding: 10px;
   border: 3px solid #0087bd;
+  border-right: none;
   border-bottom: none;
   cursor: pointer;
   width: 100%;
-  min-width: 33%;
+  min-width: 25%;
   text-align: center;
   font-weight: bold;
   font-size: large;
   color: #0087bd;
 }
 
-.tab-btn:first-child {
-  border-right: none;
-}
-.tab-btn:last-child {
-  border-left: none;
-}
+/* .tab-btn:last-child {
+  border-right: 3px solid #0087bd;
+} */
 .tab-btn.selected {
   background-color: #0087bd;
   color: white;
@@ -92,16 +97,16 @@ function navToRoute(route: string) {
 }
   .tab-btn {
     border: 3px solid #0087bd;
+    border-right: none;
     border-bottom: none;  
     min-width: 8.25rem;
   }
   .tab-btn:first-child {
     border-top-left-radius: 0.5rem;
-    border-right: none;
   }
   .tab-btn:last-child {
     border-top-right-radius: 0.5rem;
-    border-left: none;
+    border-right: 3px solid #0087bd;
   }
 }
 </style>

@@ -2,9 +2,15 @@
   <div class="header">
     <div id="title">
       <h4 >Star Citizen Hauling Manifest</h4>
+      <SearchableDropdown 
+            :options="selectableShips"
+            v-model="shipName"
+            placeholder="Select ship.."
+            label=""  
+            class="ship-selector"/>
     </div>
     <Tabs />
-    <NewContractForm v-if="route.path == '/'" style="z-index: 10000;" />
+    <NewContractForm v-if="route.path == '/'" />
   </div>
 </template>
 
@@ -12,7 +18,22 @@
 import Tabs from '@/components/Tabs.vue'
 import NewContractForm from '@/components/NewContractForm.vue'
 import { useRoute } from 'vue-router'
+import SearchableDropdown from './SearchableDropdown.vue';
+import {useShipStore} from '@/stores/use-ship-store.ts'
+import { computed,ref,watch } from 'vue'
 
+const shipStore = useShipStore();
+const shipName = ref<string>('')
+
+const selectableShips = computed(() => {
+  return shipStore.ships.map((ship) => {
+    return { value: ship, label: ship.display_name + " " + ship.cargo_capacity + "scu" }
+  })
+});
+
+watch (() => shipName.value, (newVal) => {
+  shipStore.ship = selectableShips.value.find((ship) => ship.label === newVal)?.value;
+});
 const route = useRoute()
 </script>
 
@@ -28,6 +49,9 @@ const route = useRoute()
   background-color: #2c5768;
   color:white;
   margin-bottom:2px;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
 }
 #title h4 {
   font-weight:bold;
@@ -38,6 +62,11 @@ const route = useRoute()
   color: #ffd400;
   margin-bottom: 0.25rem;
 }
+
+.ship-selector {
+    max-width: 15rem;
+    margin: 0.5rem;
+  }
 
 @media (min-width: 1024px) {
   #title {

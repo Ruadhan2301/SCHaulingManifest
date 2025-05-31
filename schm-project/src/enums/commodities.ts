@@ -4,6 +4,8 @@ export enum Commodities {
   AgriciumOre = 'Agricium (Ore)',
   AgriculturalSupplies = 'Agricultural Supplies',
   Altruciatoxin = 'Altruciatoxin',
+  Aluminum = 'Aluminum',
+  AluminumOre = 'Aluminum (Ore)',
   Aluminium = 'Aluminium',
   AluminiumOre = 'Aluminium (Ore)',
   AmioshiPlague = 'Amioshi Plague',

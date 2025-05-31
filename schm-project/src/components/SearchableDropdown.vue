@@ -17,7 +17,7 @@
       class="autocomplete w-100"
       style="position: absolute; z-index: 10000; background: white"
     >
-      <ul @mouseleave="hideDropdown" @mouseenter="showDropdown">
+      <ul @mouseleave="hideDropdown">
         <li v-for="(option, i) in filteredOptions" :key="i" @click="setSelection(option)">
           {{ option.label }}
         </li>
@@ -34,7 +34,10 @@
 .autocomplete {
   border: 1px solid #ccc;
   max-height: 150px;
-  overflow-y: auto;
+  max-width: 20rem;
+}
+li {
+  color:black;
 }
 </style>
 
@@ -102,7 +105,7 @@ const filteredOptions = computed(() => {
   if (inputSearch.value && inputSearch.value?.trim().length > 0) {
     return props.options?.filter(
       (entry) =>
-        entry.label.toLowerCase().includes(inputSearch.value.toLowerCase()) ||
+        entry.label.toLowerCase().replace(/[^a-z0-9]/gi, '').includes(inputSearch.value.toLowerCase().replace(/[^a-z0-9]/gi, '')) ||
         entry.value.toString() == inputSearch.value,
     )
   }
@@ -112,8 +115,8 @@ const setSelection = (option: IOptions) => {
   val.value = option.value
   inputSearch.value = option.label
   selectedOption.value = option
-  hideDropdown()
   onInput()
+  hideDropdown()
 }
 const selectFirstOption = () => {
   if (filteredOptions.value && filteredOptions.value.length && !isEmpty(inputSearch.value)) {
@@ -133,28 +136,45 @@ const selectFirstOption = () => {
     }
   }
 
-  hideDropdown()
+  console.log('inputSearch', inputSearch.value)
+  if(val.value != inputSearch.value){
+    val.value = inputSearch.value;
+  }
+  console.log('val A', val.value)
   onInput()
+  hideDropdown()
 }
 
 watch(
   () => inputSearch.value,
-  (newValue) => {
+  (newValue,oldvalue) => {
     if (newValue === '') {
+      console.log('empty')
       val.value = '';
       onInput();
+    }
+    if(newValue != val.value){
+      showDropdown();
     }
   },
 )
 
 watch(
   () => props.modelValue,
-  (newValue,oldvalue) => (val.value = newValue ?? ''),
+  (newValue,oldvalue) => {
+    if(val.value != newValue){
+      val.value = newValue ?? '';
+      console.log('setting inputSearch',newValue)
+      inputSearch.value = props.options?.find((option) => option.value.toString().replace(/[^a-z0-9]/gi, '') === newValue!.replace(/[^a-z0-9]/gi, ''))?.label ?? newValue ?? '';
+    }
+  },
   {
     immediate: true,
   },
 )
 const onInput = () => {
+  
+  console.log('val', val.value)
   emit('update:modelValue', val.value)
 }
 </script>
