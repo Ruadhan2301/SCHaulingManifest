@@ -9,8 +9,8 @@
             label=""  
             class="ship-selector"/>
     </div>
-    <Tabs />
-    <NewContractForm v-if="route.path == '/'" />
+    <Tabs v-if="route.path!='/calculator'" />
+    <NewContractForm v-if="route.path == '/'" style="z-index: 10000;" />
   </div>
 </template>
 
