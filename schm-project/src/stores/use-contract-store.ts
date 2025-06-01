@@ -5,6 +5,10 @@ import { Commodities } from '../enums/commodities'
 import { PayloadStatus } from '@/enums/payload-status'
 
 export const useContractStore = defineStore('contracts', () => {
+
+  const showEditContractModal = ref(false)
+  const editContract = ref<Contract | undefined>()
+
   const contracts = ref<Contract[]>([
     /*{
       id:1,
@@ -26,9 +30,22 @@ export const useContractStore = defineStore('contracts', () => {
   const addContract = (contract: Contract) => {
     contracts.value.push(contract)
   }
+  const updateContract = (updatedContract: Contract) => {
+    const index = contracts.value.findIndex(contract => contract.id === updatedContract.id)
+    if (index !== -1) {
+      contracts.value[index] = updatedContract
+    } else {
+      console.warn(`Contract with ID ${updatedContract.id} not found for update.`)
+    }
+  }
   const deleteContract = (contractID: number) => {
-    contracts.value = contracts.value.filter((contract) => contract.id !== contractID)
+    const index = contracts.value.findIndex(contract => contract.id === contractID)
+    if (index !== -1) {
+      contracts.value.splice(index, 1)
+    } else {
+      console.warn(`Contract with ID ${contractID} not found for deletion.`)
+    }
   }
 
-  return { contracts, addContract, deleteContract }
+  return { contracts, addContract, updateContract, deleteContract, editContract, showEditContractModal }
 })

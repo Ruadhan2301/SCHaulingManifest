@@ -3,7 +3,9 @@
     <button class="btn btn-secondary w-100 my-1 mx-auto" style="max-width: 25rem" @click="OpenNewContract"
       >New Contract</button>
     <button class="btn btn-secondary w-100 my-1 mx-auto" style="max-width: 25rem" @click="OpenCaptureMode"
-      >Capture Mode (Experimental)</button>
+      ><svg style="width:2rem; fill:#0087bd; padding-right:0.5rem;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <path d="M149.1 64.8L138.7 96 64 96C28.7 96 0 124.7 0 160L0 416c0 35.3 28.7 64 64 64l384 0c35.3 0 64-28.7 64-64l0-256c0-35.3-28.7-64-64-64l-74.7 0L362.9 64.8C356.4 45.2 338.1 32 317.4 32L194.6 32c-20.7 0-39 13.2-45.5 32.8zM256 192a96 96 0 1 1 0 192 96 96 0 1 1 0-192z"/>
+      </svg>Capture Mode (Experimental)</button>
       
   </div>
   
@@ -64,6 +66,13 @@
           label="Contract Name"
         />
         <FieldInput v-model="newContract.price" placeholder="price*" label="Payout (auec)" />
+      </div>
+      <div class="d-flex mb-3 w-100">        
+      <FieldDropdown
+            v-model="newContract.containerSize"
+            :options="ContainerSizes"
+            style="max-width: 20rem"
+          label="Max Container Size"/>
       </div>
       <div v-if="addingPayload" class="border-thin p-3">
         <div class="d-flex mb-3 w-100 gap-3">
@@ -158,6 +167,8 @@ import SearchableDropdown from './SearchableDropdown.vue'
 import FieldInput from './FieldInput.vue'
 import type { Payload } from '@/models/payload'
 import { createWorker } from 'tesseract.js';
+import FieldDropdown from '@/components/FieldDropdown.vue';
+import { ContainerSizes } from '@/enums/container-sizes';
 
 const locations = Object.values(Locations) as string[]
 const commodities = Object.values(Commodities) as string[]
@@ -304,6 +315,7 @@ const parseResults = (text:string) =>
     id: useContractStore().contracts.length,
     name: 'Contract ' + (useContractStore().contracts.length + 1),
     payloads: [],
+    containerSize: 1,
   }
   for(let i in missionText){
     let row = missionText[i];
@@ -365,6 +377,7 @@ const newContract = ref<Contract>({
   name: '',
   price: 0,
   payloads: [],
+    containerSize: 1,
 })
 
 const newPayload = ref<Payload>({
@@ -404,6 +417,7 @@ const OpenCaptureMode = () => {
     id: useContractStore().contracts.length,
     name: 'Contract ' + (useContractStore().contracts.length + 1),
     payloads: [],
+    containerSize: 1,
   }
 
   captureMode.value = true;
@@ -415,6 +429,7 @@ const OpenNewContract = () => {
     id: useContractStore().contracts.length,
     name: 'Contract ' + (useContractStore().contracts.length + 1),
     payloads: [],
+    containerSize: 1,
   }
   captureMode.value = false;
   showForm.value = true

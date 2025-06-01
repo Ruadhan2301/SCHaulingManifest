@@ -17,13 +17,13 @@
       >
         Locations
       </div>
-      <div
+      <!--<div
         class="tab-btn"
         :class="[route.path == '/routing' ? 'selected' : '']"
         @click="navToRoute('/routing')"
       >
         Routing
-      </div>
+      </div>-->
 
       <div
         class="tab-btn"

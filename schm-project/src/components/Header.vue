@@ -1,16 +1,29 @@
 <template>
   <div class="header">
-    <div id="title">
+    <div id="title" class="d-flex flex-wrap">
       <h4 >Star Citizen Hauling Manifest</h4>
-      <SearchableDropdown 
+      <Button 
+        v-if="route.path!='/calculator'" 
+        class="btn btn-primary ml-auto" 
+        @click="$router.push('/calculator')">
+        Payload Calculator
+      </Button>
+      <Button 
+        v-if="route.path=='/calculator'" 
+        class="btn btn-primary ml-auto" 
+        @click="$router.push('/')">
+        Close Calculator
+      </Button>
+      <!--<SearchableDropdown 
             :options="selectableShips"
             v-model="shipName"
             placeholder="Select ship.."
             label=""  
-            class="ship-selector"/>
+            class="ship-selector"/>-->
     </div>
     <Tabs v-if="route.path!='/calculator'" />
     <NewContractForm v-if="route.path == '/'" style="z-index: 10000;" />
+    <EditContractForm :isActive="useContractStore().showEditContractModal" :contract="useContractStore().editContract" ></EditContractForm>
   </div>
 </template>
 
@@ -20,7 +33,9 @@ import NewContractForm from '@/components/NewContractForm.vue'
 import { useRoute } from 'vue-router'
 import SearchableDropdown from './SearchableDropdown.vue';
 import {useShipStore} from '@/stores/use-ship-store.ts'
+import { useContractStore } from '@/stores/use-contract-store';
 import { computed,ref,watch } from 'vue'
+import EditContractForm from '@/components/EditContractForm.vue'
 
 const shipStore = useShipStore();
 const shipName = ref<string>('')

@@ -3,6 +3,7 @@ import type { Contract } from '../models/contract'
 import { computed } from 'vue'
 import { useContractStore } from '../stores/use-contract-store'
 import { PayloadStatus } from '../enums/payload-status'
+import { calculatePayload } from '@/utils/payload-calculator.ts';
 
 const { contracts } = useContractStore()
 
@@ -12,9 +13,10 @@ const destinations = computed(() => {
     !contract.completed &&
       contract.payloads.forEach((payload) => {
         if (!acc[payload.destinationID]) {
-          acc[payload.destinationID] = { name: payload.destinationID, payloads: [] }
+          acc[payload.destinationID] = { name: payload.destinationID, payloads: [], containerSize: contract.containerSize }
         }
-        acc[payload.destinationID].payloads.push(payload)
+        acc[payload.destinationID].payloads.push(payload);
+        //acc[payload.destinationID].payloads.push({...payload, containerSize: contract.containerSize})
       })
     return acc
   }, {})
@@ -41,10 +43,10 @@ const origins = computed(() => {
     !contract.completed &&
       contract.payloads.forEach((payload) => {
         if (!acc[payload.originID]) {
-          acc[payload.originID] = { name: payload.originID, payloads: [] }
+          acc[payload.originID] = { name: payload.originID, payloads: [], containerSize: contract.containerSize }
         }
-        acc[payload.originID].payloads.push(payload)
-      })
+        acc[payload.originID].payloads.push(payload);
+      })    
     return acc
   }, {})
   return dest
@@ -116,8 +118,10 @@ const origins = computed(() => {
                     </div>
                   </div>
                 </div>
+                
               </div>
             </div>
+            
             <div class="text-right">
               <div style="width: auto; text-wrap: nowrap">Status: {{ payload.status }}</div>
               <Button
@@ -134,6 +138,16 @@ const origins = computed(() => {
               >
             </div>
           </div>
+          <div class="d-flex gap-1 my-3">
+                    <div
+                      v-for="(container, index) in calculatePayload(payload.quantity ?? 0, destination.containerSize)"
+                      :key="index"
+                      class="d-flex flex-column align-items-center mx-1" style="background:gainsboro; width:3rem; border-radius: 0.5rem;"
+                    >
+                      <div class="circle-count-sm-tan">x{{ container.quantity }}</div>
+                      <div class="bold">{{ container.size }} scu</div>
+                    </div>
+                  </div>
           <p class="text-sm">{{ payload.originID }} -> {{ payload.destinationID }}</p>
         </div>
       </div>
@@ -150,6 +164,7 @@ const origins = computed(() => {
           id="destination-instance-payload"
           :class="[{ disabled: payload.status == PayloadStatus.Ready }]"
         >
+        <div class="d-inline">
           <div class="d-flex">
             <div class="w-100">
               <div class="d-flex" style="position: relative">
@@ -170,6 +185,8 @@ const origins = computed(() => {
                 </div>
               </div>
             </div>
+            
+            </div>
             <div class="text-right">
               <div style="width: auto; text-wrap: nowrap">Status: {{ payload.status }}</div>
               <Button
@@ -186,6 +203,16 @@ const origins = computed(() => {
               >
             </div>
           </div>
+          <div class="d-flex gap-1 my-3">
+                    <div
+                      v-for="(container, index) in calculatePayload(payload.quantity ?? 0, destination.containerSize)"
+                      :key="index"
+                      class="d-flex flex-column align-items-center mx-1" style="background:gainsboro; width:3rem; border-radius: 0.5rem;"
+                    >
+                      <div class="circle-count-sm-tan">x{{ container.quantity }}</div>
+                      <div class="bold">{{ container.size }} scu</div>
+                    </div>
+                  </div>
           <p class="text-sm">{{ payload.originID }} -> {{ payload.destinationID }}</p>
         </div>
       </div>

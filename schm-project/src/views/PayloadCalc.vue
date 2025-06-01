@@ -3,56 +3,44 @@ import { onMounted, ref } from 'vue'
 import SearchableDropdown from '../components/SearchableDropdown.vue'
 import FieldInput from '../components/FieldInput.vue'
 import FieldDropdown from '@/components/FieldDropdown.vue';
+import { ContainerSizes } from '@/enums/container-sizes';
+import { calculatePayload } from '@/utils/payload-calculator.ts';
 
-onMounted(() => {
 
-});
-
-const containerSizes = [
-  { value: 1, label: '1 scu' },
-  { value: 2, label: '2 scu' },
-  { value: 4, label: '4 scu' },
-  { value: 8, label: '8 scu' },
-  { value: 16, label: '16 scu' },
-  { value: 32, label: '32 scu' },
-];
-
-const containerSize = ref(1);
-const containerVolume = ref(1);
+const containerSize = ref(32);
+const containerVolume = ref(63);
 
 const payloadContainers = ref<any[]>([]); // Initialize payload containers as an empty array
 
-const calculatePayload = () => {
-  
-  //For each container size, calculate the number of containers needed to fill the remaining volume
-  let remainingVolume = containerVolume.value;
-  let payloads = []; // Reset the payload containers array
-  // Loop through the container sizes in descending order
-  for (let i = containerSizes.length - 1; i >= 0; i--) {
-    const containerSizeValue = containerSizes[i].value;
-    if(containerSizeValue > containerSize.value) {
-      continue; // Skip if the container size is larger than the selected size
-    }
-    const numContainers = Math.floor(remainingVolume / containerSizeValue);
-    if (numContainers > 0) {
-      payloads.push({
-        size: containerSizeValue,
-        quantity: numContainers,
-      });
-      remainingVolume -= numContainers * containerSizeValue;
-    }
-  }
-  payloadContainers.value = payloads;
+onMounted(() => {
+  // Set default values for container size and volume
+  containerSize.value = 32; // Default to the first container size
+  containerVolume.value = 63; // Default to a reasonable volume#
+  generatePayload(); // Generate initial payload based on defaults
+});
+
+const generatePayload = () => {
+  // Reset payload containers
+  payloadContainers.value = [];  
+  // Calculate the payload based on the selected container size and volume
+  payloadContainers.value = calculatePayload(containerVolume.value, containerSize.value);
 };
 
 </script>
 
 <template>
   <main>
+    <div class="d-flex flex-column align-items-center justify-content-center w-100 container">
+      <h2 class="text-center">Payload Calculator</h2>
+    
+    <div>
+      <p class="bold">This tool calculates the spread of containers you can expect for a given number of SCU, and a maximum container-size</p>
+      <p class="text-center" style="font-style: italic">Note that this ignores the existence of 24scu containers because CIG is not using them in contracts</p>
+    </div>
     <div class="d-flex my-3 w-100 gap-3">
       <FieldDropdown
             v-model="containerSize"
-            :options="containerSizes"
+            :options="ContainerSizes"
           label="Max Container Size"/>
           <!--dropdown-->
         <FieldInput
@@ -65,7 +53,7 @@ const calculatePayload = () => {
         <Button
           class="btn btn-primary text-center mx-auto mt-4"
           style="min-width: 8rem"
-          @click="calculatePayload"
+          @click="generatePayload"
           :disabled="!containerSize || !containerVolume || containerVolume < containerSize"
         >
           Submit
@@ -117,6 +105,6 @@ const calculatePayload = () => {
           </div>
         </div>
       </div>
-      
+      </div>
   </main>
 </template>

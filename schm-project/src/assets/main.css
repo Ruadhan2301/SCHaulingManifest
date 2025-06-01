@@ -44,6 +44,20 @@ a,
   min-height: 3rem;
 }
 
+.circle-count-sm-tan {
+  border-radius: 5px;
+  background-color: rgb(174, 154, 120);
+  color: white;
+  padding: 0.25rem;
+  width: 2rem;
+  height: 2rem;
+  text-align: center;
+  font-weight: bold;
+  padding-top: 0.25rem;
+  min-width: 2rem;
+  min-height: 2rem;
+}
+
 .btn-primary{
   background-color: #0087bd;
   color: white;

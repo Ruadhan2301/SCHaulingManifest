@@ -5,6 +5,7 @@ export interface Contract {
   description?: string
   price?: number
   payloads: Payload[]
+  containerSize: number
   completed?: boolean
   cancelled?: boolean
 }
