@@ -1,0 +1,1 @@
+import{d as t,k as e,l as a,u as n,a as r,o as s}from"./index-CWF6fOjJ.js";const m=t({__name:"CargoHold",setup(c){const o=e();return e(),a(()=>{o.value=n().contracts}),(u,_)=>(s(),r("main"))}});export{m as default};
