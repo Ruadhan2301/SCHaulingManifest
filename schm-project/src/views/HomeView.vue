@@ -1,16 +1,35 @@
 <script setup lang="ts">
 import type { Contract } from '../models/contract'
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted,onBeforeUnmount } from 'vue'
 import { useContractStore } from '../stores/use-contract-store'
 import { PayloadStatus } from '../enums/payload-status'
 import { useRoute } from 'vue-router'
 import { calculatePayload } from '@/utils/payload-calculator.ts';
+import { onClickOutside } from '@vueuse/core'
+//import { onClickOutside } from '@vueuse/core' // Optional, for closing menu on outside click
 
+const openMenuId = ref<number | null>(null)
+
+function toggleMenu(id: number) {
+  openMenuId.value = openMenuId.value === id ? null : id
+}
+function closeMenu() {
+  openMenuId.value = null
+}
+
+function duplicateContract(contract: Contract) {
+  // Simple deep clone, adjust as needed
+  const newContract = JSON.parse(JSON.stringify(contract))
+  newContract.id = Date.now() // or your preferred ID logic
+  newContract.name = contract.name + ' (Copy)'
+  newContract.completed = false
+  newContract.cancelled = false
+  useContractStore().addContract(newContract)
+}
 
 const route = useRoute()
 
 const { contracts } = useContractStore()
-const editContract = ref<Contract>();
 
 const displayContracts = computed(() => {
   return contracts.filter((contract) => !!contract.completed == (route.path === '/history'))
@@ -27,6 +46,24 @@ const OpenEditContractForm = (contract: Contract) => {
   useContractStore().editContract = contract;
   useContractStore().showEditContractModal = true;  
 }
+
+function handleDocumentClick(event: MouseEvent) {
+  // Only check if a menu is open
+  if (openMenuId.value !== null) {
+    // Find the open dropdown by its data attribute
+    const dropdown = document.querySelector(`[data-dropdown-id="${openMenuId.value}"]`)
+    if (dropdown && !dropdown.contains(event.target as Node)) {
+      openMenuId.value = null
+    }
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('mousedown', handleDocumentClick)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('mousedown', handleDocumentClick)
+})
 
 </script>
 
@@ -72,7 +109,44 @@ h2{
         <div id="destination-instance-header" class="contract-block-header d-flex">
           <h2>{{ contract.name }}</h2>
           <h2 class="ml-auto">{{ contractPayout(contract) }}<span class="bold" style="font-size: medium"> auec</span></h2>
-          <div class="">
+          <!-- Hamburger Menu -->
+          <div style="position: relative;">
+            <button
+              class="btn"
+              @click="toggleMenu(contract.id)"
+              style="background: none; border: none; font-size: 1.5rem; cursor: pointer;"
+            >
+              &#9776;
+            </button>
+            <div
+              v-if="openMenuId === contract.id"
+              :data-dropdown-id="contract.id"                
+              style="position: absolute; right: 0; top: 2rem; background: white; border: 1px solid #ccc; border-radius: 0.5rem; z-index: 10; min-width: 8rem; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"
+            >
+              <div
+                class="dropdown-item"
+                style="padding: 0.5rem 1rem; cursor: pointer;"
+                @click="OpenEditContractForm(contract); closeMenu()"
+              >
+                Edit
+              </div>
+              <div
+                class="dropdown-item"
+                style="padding: 0.5rem 1rem; cursor: pointer;"
+                @click="duplicateContract(contract); closeMenu()"
+              >
+                Duplicate
+              </div>
+              <div
+                class="dropdown-item"
+                style="padding: 0.5rem 1rem; cursor: pointer; color: darkred;"
+                @click="useContractStore().deleteContract(contract.id); closeMenu()"
+              >
+                Delete
+              </div>
+            </div>
+          </div>
+          <!--<div class="">
             <Button
               class="btn btn-primary"
               v-if="!contract.completed && !contract.cancelled"
@@ -91,7 +165,7 @@ h2{
                 <path d="M135.2 17.7L128 32 32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0-7.2-14.3C307.4 6.8 296.3 0 284.2 0L163.8 0c-12.1 0-23.2 6.8-28.6 17.7zM416 128L32 128 53.2 467c1.6 25.3 22.6 45 47.9 45l245.8 0c25.3 0 46.3-19.7 47.9-45L416 128z"/>
               </svg>
             </div>
-          </div>
+          </div>-->
         </div>
         
         <div
@@ -153,6 +227,18 @@ h2{
             <div v-if="!contract.completed && !contract.cancelled" 
               class="d-flex text-center gap-2 w-100">
               <button
+                class="btn btn-undo mr-auto"
+                v-if="payload.status === PayloadStatus.Collected"
+                @click="payload.status = PayloadStatus.Ready"
+                >Uncollect</button
+              >
+              <button
+                class="btn btn-undo mr-auto"
+                v-if="payload.status === PayloadStatus.Delivered"
+                @click="payload.status = PayloadStatus.Collected"
+                >Undeliver</button
+              >
+              <button
                 class="btn btn-primary w-50 ml-auto"
                 v-if="payload.status === PayloadStatus.Ready"
                 @click="payload.status = PayloadStatus.Collected"
@@ -164,23 +250,12 @@ h2{
                 @click="payload.status = PayloadStatus.Delivered"
                 >Deliver</button
               >
+              
+            </div>      
+          </div>
+          <div>
               <button
-                class="btn btn-undo w-50 ml-auto"
-                v-if="payload.status === PayloadStatus.Collected"
-                @click="payload.status = PayloadStatus.Ready"
-                >Uncollect</button
-              >
-              <button
-                class="btn btn-undo w-50 ml-auto"
-                v-if="payload.status === PayloadStatus.Delivered"
-                @click="payload.status = PayloadStatus.Collected"
-                >Undeliver</button
-              >
-            </div>
-
-            <div>
-              <button
-                class="btn btn-primary w-100 mx-auto mt-3"
+                class="btn btn-primary w-100 mx-auto"
                 v-if="contractCompleted(contract) && !contract.completed"
                 @click="contract.completed = true"
                 >Complete Contract</button
@@ -192,8 +267,7 @@ h2{
                   >Resume Contract</button
                 >
               </div>
-            </div>        
-          </div>
+            </div>  
       </div>
     </div>
     <div id="main-destination-list"></div>

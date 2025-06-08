@@ -8,4 +8,5 @@ export interface Contract {
   containerSize: number
   completed?: boolean
   cancelled?: boolean
+  displayOpen?: boolean
 }

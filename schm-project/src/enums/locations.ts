@@ -1,4 +1,5 @@
 export enum Locations {
+  ShepherdsRest = 'Shepherd’s Rest',
   BuenoRavine = 'Bueno Ravine',
   FrigidKnot = 'Frigid Knot',
   Orbituary = 'Orbituary',

@@ -17,13 +17,23 @@ export const useContractStore = defineStore('contracts', () => {
       price: 10000,
       payloads: [
         {
+          id: 1,
           commodityID: Commodities.Titanium,
-          originID: 'Ruin Station',
-          destinationID: 'Area18',
+          originID: 'Area18',
+          destinationID: 'Everus Harbor',
           quantity: 10,
-          status: PayloadStatus.Collected
+          status: PayloadStatus.Ready,
+        },
+        {
+          id: 2,
+          commodityID: Commodities.Steel,
+          originID: 'Area18',
+          destinationID: 'Everus Harbor',
+          quantity: 5,
+          status: PayloadStatus.Collected,
         }
       ],
+      containerSize: 16,
     }*/
   ])
 

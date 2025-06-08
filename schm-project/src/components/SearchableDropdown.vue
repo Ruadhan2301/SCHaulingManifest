@@ -13,7 +13,7 @@
       class="dropdown-input w-100 mt-1"
     />
     <div
-      v-if="isFocused"
+      v-if="isFocused" ref="dropdownRef"
       class="autocomplete w-100"
       style="position: absolute; z-index: 10000; background: white"
     >
@@ -46,10 +46,14 @@ import { computed, ref, watch, onMounted } from 'vue'
 
 import { defineProps } from 'vue'
 import type { IOptions } from './Interfaces/Fields'
+import { onClickOutside } from '@vueuse/core'
 
 const inputSearch = ref('')
 const inputField = ref()
 const selectedOption = ref<IOptions>()
+
+
+const dropdownRef = ref()
 
 const val = ref('')
 const selectFieldInput = () => {
@@ -93,6 +97,8 @@ const hideDropdown = () => {
 const showDropdown = () => {
   isFocused.value = true
 }
+
+onClickOutside(dropdownRef, hideDropdown)
 
 const isEmpty = (a: string) => {
   return a === null || a === undefined || a.trim() === ''

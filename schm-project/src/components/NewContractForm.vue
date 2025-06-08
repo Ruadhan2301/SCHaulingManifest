@@ -312,7 +312,7 @@ const parseResults = (text:string) =>
   let destination = ''
   let quantity = 0;
   newContract.value = {
-    id: useContractStore().contracts.length,
+    id: Date.now(),
     name: 'Contract ' + (useContractStore().contracts.length + 1),
     payloads: [],
     containerSize: 1,
@@ -359,12 +359,16 @@ const parseResults = (text:string) =>
 const selectableLocations = computed(() => {
   return locations.map((location) => {
     return { value: location, label: location }
+  }).sort((a, b) => {
+    return a.label.localeCompare(b.label)
   })
 })
 
 const selectableCommodities = computed(() => {
   return commodities.map((commodity) => {
     return { value: commodity, label: commodity }
+  }).sort((a, b) => {
+    return a.label.localeCompare(b.label)
   })
 })
 
@@ -414,7 +418,7 @@ const openPayload = (payload: Payload) => {
 const OpenCaptureMode = () => {
 
   newContract.value = {
-    id: useContractStore().contracts.length,
+    id: Date.now(),
     name: 'Contract ' + (useContractStore().contracts.length + 1),
     payloads: [],
     containerSize: 1,
@@ -426,7 +430,7 @@ const OpenCaptureMode = () => {
 
 const OpenNewContract = () => {
   newContract.value = {
-    id: useContractStore().contracts.length,
+    id: Date.now(),
     name: 'Contract ' + (useContractStore().contracts.length + 1),
     payloads: [],
     containerSize: 1,

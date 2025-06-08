@@ -1,11 +1,45 @@
 <script setup lang="ts">
 import type { Contract } from '../models/contract'
-import { computed } from 'vue'
+import type { ContractLocation } from '@/models/contractLocation'
+import { computed, onMounted, ref } from 'vue'
 import { useContractStore } from '../stores/use-contract-store'
 import { PayloadStatus } from '../enums/payload-status'
 import { calculatePayload } from '@/utils/payload-calculator.ts';
 
 const { contracts } = useContractStore()
+
+const contractOrigins = ref<{locationId: string, open: boolean}[]>([]);
+const contractDestinations = ref<{locationId: string, open: boolean}[]>([]);
+
+onMounted(() => {
+  // Ensure contracts are loaded when the component is mounted
+  contracts.forEach(contract => {
+    contract.payloads.forEach(payload => {
+      if(!contractOrigins.value.some(loc => loc.locationId === payload.originID)) {
+        contractOrigins.value.push({ locationId: payload.originID, open: true });
+      }
+      if(!contractDestinations.value.some(loc => loc.locationId === payload.destinationID)) {
+        contractDestinations.value.push({ locationId: payload.destinationID, open: true });
+      }
+    });
+  });
+  console.log('Contract Origins:', contractOrigins.value);
+  console.log('Contract Destinations:', contractDestinations.value);
+})
+
+function toggleOrigin(locationId: string) {
+  const loc = contractOrigins.value.find(loc => loc.locationId === locationId);
+  if (loc) {
+    loc.open = !loc.open;
+  }
+}
+function toggleDestination(locationId: string) {
+  console.log(`Toggling destination: ${locationId}`);
+  const loc = contractDestinations.value.find(loc => loc.locationId === locationId);
+  if (loc) {
+    loc.open = !loc.open;
+  }
+}
 
 const destinations = computed(() => {
   // create an array of payloads from all contracts, using DestinationID to categorise them
@@ -94,36 +128,44 @@ const origins = computed(() => {
     <h3 class="main-destination-heading">Origins</h3>
     <div>
       <div id="main-destination-list" v-for="destination in origins" class="mt-2">
-        <h4 class="">{{ destination.name }}</h4>
+        <div @click="toggleOrigin(destination.name)" class="d-flex" style="cursor:pointer;">
+          <h4>{{ destination.name }}</h4>
+          <span class="ml-auto p-2">{{ contractOrigins.find(loc => loc.locationId === destination.name)?.open ? '▲' : '▼' }}</span>
+        </div>
         <div
+        v-show="contractOrigins.find(loc => loc.locationId === destination.name)?.open"
           v-for="payload in destination.payloads"
           id="destination-instance-payload"
           :class="[{ disabled: payload.status != PayloadStatus.Ready }]"
         >
-          <div class="d-flex">
+          <div class="d-inline">
+            <div class="d-flex">
             <div class="w-100">
               <div class="d-flex" style="position: relative">
                 <div class="circle-count">x{{ payload.quantity }}</div>
-                <div style="position: relative; width: 100%">
+                <div style="position: relative;">
                   <div style="position: relative">
-                    <div
-                      style="
-                        left: 0.25rem;
-                        top: -50%;
-                        transform: translateY(50%);
-                        position: absolute;
-                      "
-                    >
+                    <div class="bold" style="padding-left: 0.25rem; transform: translateY(50%);">
                       {{ payload.commodityID }}
                     </div>
                   </div>
                 </div>
-                
+                <div class="d-flex gap-1 my-1" style="padding-left:0.5rem; flex-wrap: wrap;">
+                  <div
+                    v-for="(container, index) in calculatePayload(payload.quantity ?? 0, destination.containerSize)"
+                    :key="index"
+                    class="d-flex flex-column align-items-center mx-1" style="background:gainsboro; width:3rem; border-radius: 0.5rem;"
+                  >
+                    <div class="circle-count-sm-tan">x{{ container.quantity }}</div>
+                    <div class="bold">{{ container.size }} scu</div>
+                  </div>
+                </div>
               </div>
             </div>
             
+            </div>
+            
             <div class="text-right">
-              <div style="width: auto; text-wrap: nowrap">Status: {{ payload.status }}</div>
               <Button
                 class="btn btn-primary ml-auto"
                 v-if="payload.status == PayloadStatus.Ready"
@@ -138,17 +180,11 @@ const origins = computed(() => {
               >
             </div>
           </div>
-          <div class="d-flex gap-1 my-3">
-                    <div
-                      v-for="(container, index) in calculatePayload(payload.quantity ?? 0, destination.containerSize)"
-                      :key="index"
-                      class="d-flex flex-column align-items-center mx-1" style="background:gainsboro; width:3rem; border-radius: 0.5rem;"
-                    >
-                      <div class="circle-count-sm-tan">x{{ container.quantity }}</div>
-                      <div class="bold">{{ container.size }} scu</div>
-                    </div>
-                  </div>
+                    
+          <div class="d-flex">
           <p class="text-sm">{{ payload.originID }} -> {{ payload.destinationID }}</p>
+          <div class="ml-auto" style="width: auto; text-wrap: nowrap">Status: {{ payload.status }}</div>
+          </div>
         </div>
       </div>
     </div>
@@ -158,8 +194,12 @@ const origins = computed(() => {
     <h3 class="main-destination-heading">Destinations</h3>
     <div>
       <div id="main-destination-list" v-for="destination in destinations" class="mt-2">
-        <h3>{{ destination.name }}</h3>
+        <div @click="toggleDestination(destination.name)" class="d-flex" style="cursor:pointer;">
+          <h4>{{ destination.name }}</h4>
+          <span class="ml-auto p-2">{{ contractDestinations.find(loc => loc.locationId === destination.name)?.open ? '▲' : '▼' }}</span>
+        </div>
         <div
+        v-show="contractDestinations.find(loc => loc.locationId === destination.name)?.open"
           v-for="payload in destination.payloads"
           id="destination-instance-payload"
           :class="[{ disabled: payload.status == PayloadStatus.Ready }]"
@@ -169,26 +209,29 @@ const origins = computed(() => {
             <div class="w-100">
               <div class="d-flex" style="position: relative">
                 <div class="circle-count">x{{ payload.quantity }}</div>
-                <div style="position: relative; width: 100%">
+                <div style="position: relative;">
                   <div style="position: relative">
-                    <div
-                      style="
-                        left: 0.25rem;
-                        top: -50%;
-                        transform: translateY(50%);
-                        position: absolute;
-                      "
-                    >
+                    <div class="bold" style="padding-left: 0.25rem; transform: translateY(50%);">
                       {{ payload.commodityID }}
                     </div>
                   </div>
                 </div>
+                <div class="d-flex gap-1 my-1" style="padding-left:0.5rem; flex-wrap: wrap;">
+            <div
+              v-for="(container, index) in calculatePayload(payload.quantity ?? 0, destination.containerSize)"
+              :key="index"
+              class="d-flex flex-column align-items-center mx-1" style="background:gainsboro; width:3rem; border-radius: 0.5rem;"
+            >
+              <div class="circle-count-sm-tan">x{{ container.quantity }}</div>
+              <div class="bold">{{ container.size }} scu</div>
+            </div>
+          </div>
               </div>
             </div>
             
             </div>
             <div class="text-right">
-              <div style="width: auto; text-wrap: nowrap">Status: {{ payload.status }}</div>
+              
               <Button
                 class="btn btn-primary ml-auto"
                 v-if="payload.status === PayloadStatus.Collected"
@@ -203,17 +246,10 @@ const origins = computed(() => {
               >
             </div>
           </div>
-          <div class="d-flex gap-1 my-3">
-                    <div
-                      v-for="(container, index) in calculatePayload(payload.quantity ?? 0, destination.containerSize)"
-                      :key="index"
-                      class="d-flex flex-column align-items-center mx-1" style="background:gainsboro; width:3rem; border-radius: 0.5rem;"
-                    >
-                      <div class="circle-count-sm-tan">x{{ container.quantity }}</div>
-                      <div class="bold">{{ container.size }} scu</div>
-                    </div>
-                  </div>
+          <div class="d-flex">
           <p class="text-sm">{{ payload.originID }} -> {{ payload.destinationID }}</p>
+          <div class="ml-auto" style="width: auto; text-wrap: nowrap">Status: {{ payload.status }}</div>
+          </div>
         </div>
       </div>
     </div>

@@ -14,6 +14,7 @@ export const useLocationStore = defineStore('locations', () => {
         {display_name: "Jackson's Swap",type: LocationType.Outpost,parentBody: Planets.Pyro_Pyro2,map_x: 0,map_y: 0,},
         {display_name: 'Sunset Mesa',type: LocationType.Outpost,parentBody: Planets.Pyro_Pyro2,map_x: 0,map_y: 0,},
       //Pyro 3
+        {display_name: "Shepherd's Rest",type: LocationType.Outpost,parentBody: Planets.Pyro_Pyro3,map_x: 0,map_y: 0,},
         {display_name: 'Bueno Ravine',type: LocationType.Outpost,parentBody: Planets.Pyro_Pyro3,map_x: 0,map_y: 0,},
         {display_name: 'Frigid Knot',type: LocationType.Outpost,parentBody: Planets.Pyro_Pyro3,map_x: 0,map_y: 0,},
         {display_name: 'Orbituary',type: LocationType.Station,parentBody: Planets.Pyro_Pyro3,map_x: 0,map_y: 0,},
